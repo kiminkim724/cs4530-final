@@ -70,6 +70,14 @@ export interface ViewingArea {
   elapsedTimeSec: number;
 }
 
+export interface KaraokeArea {
+  id: string;
+  currentSong?: string;
+  songQueue: string[];
+  isPlaying: boolean;
+  elapsedTimeSec: number;
+}
+
 export interface PosterSessionArea {
   id: string;
   stars: number;
