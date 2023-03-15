@@ -13,7 +13,7 @@ export type KaraokeAreaEvents = {
   playbackChange: (isPlaying: boolean) => void;
   /**
    * A progressChange event indicates that the progress of the song has changed, either
-   * due to the user scrubbing through the video, or from the natural progression of time.
+   * due to the user scrubbing through the song, or from the natural progression of time.
    * Listeners are passed the new playback time elapsed in seconds.
    */
   progressChange: (elapsedTimeSec: number) => void;
@@ -34,11 +34,11 @@ export type KaraokeAreaEvents = {
 };
 
 /**
- * A KaraokeAreaController manages the state for a KaraokeArea in the frontend app, serving as a bridge between the video
- * that is playing in the user's browser and the backend TownService, ensuring that all players watching the same video
+ * A KaraokeAreaController manages the state for a KaraokeArea in the frontend app, serving as a bridge between the song
+ * that is playing in the user's browser and the backend TownService, ensuring that all players listening to the same song
  * are synchronized in their playback.
  *
- * The KaraokeAreaController implements callbacks that handle events from the video player in this browser window, and
+ * The KaraokeAreaController implements callbacks that handle events from the song player in this browser window, and
  * emits updates when the state is updated, @see KaraokeAreaEvents
  */
 export default class KaraokeAreaController extends (EventEmitter as new () => TypedEventEmitter<KaraokeAreaEvents>) {
@@ -48,7 +48,7 @@ export default class KaraokeAreaController extends (EventEmitter as new () => Ty
    * Constructs a new KaraokeAreaController, initialized with the state of the
    * provided KaraokeAreaModel.
    *
-   * @param karaokeAreaModel The viewing area model that this controller should represent
+   * @param karaokeAreaModel The karaoke area model that this controller should represent
    */
   constructor(KaraokeAreaModel: KaraokeAreaModel) {
     super();
@@ -56,25 +56,25 @@ export default class KaraokeAreaController extends (EventEmitter as new () => Ty
   }
 
   /**
-   * The ID of the viewing area represented by this viewing area controller
+   * The ID of the karaoke area represented by this karaoke area controller
    * This property is read-only: once a KaraokeAreaController is created, it will always be
-   * tied to the same viewing area ID.
+   * tied to the same karaoke area ID.
    */
   public get id() {
     return this._model.id;
   }
 
   /**
-   * The URL of the video assigned to this viewing area, or undefined if there is not one.
+   * The URL of the song assigned to this karaoke area, or undefined if there is not one.
    */
   public get currentSong() {
     return this._model.currentSong;
   }
 
   /**
-   * The URL of the video assigned to this viewing area, or undefined if there is not one.
+   * The URL of the song assigned to this karaoke area, or undefined if there is not one.
    *
-   * Changing this value will emit a 'videoChange' event to listeners
+   * Changing this value will emit a 'songChange' event to listeners
    */
   public set currentSong(song: string | undefined) {
     if (this._model.currentSong !== this.currentSong) {
@@ -84,14 +84,14 @@ export default class KaraokeAreaController extends (EventEmitter as new () => Ty
   }
 
   /**
-   * The playback position of the video, in seconds (a floating point number)
+   * The playback position of the song, in seconds (a floating point number)
    */
   public get elapsedTimeSec() {
     return this._model.elapsedTimeSec;
   }
 
   /**
-   * The playback position of the video, in seconds (a floating point number)
+   * The playback position of the song, in seconds (a floating point number)
    *
    * Changing this value will emit a 'progressChange' event to listeners
    */
@@ -103,16 +103,16 @@ export default class KaraokeAreaController extends (EventEmitter as new () => Ty
   }
 
   /**
-   * The playback state - true indicating that the video is playing, false indicating
-   * that the video is paused.
+   * The playback state - true indicating that the song is playing, false indicating
+   * that the song is paused.
    */
   public get isPlaying() {
     return this._model.isPlaying;
   }
 
   /**
-   * The playback state - true indicating that the video is playing, false indicating
-   * that the video is paused.
+   * The playback state - true indicating that the song is playing, false indicating
+   * that the song is paused.
    *
    * Changing this value will emit a 'playbackChange' event to listeners
    */
@@ -150,8 +150,8 @@ export default class KaraokeAreaController extends (EventEmitter as new () => Ty
   }
 
   /**
-   * Applies updates to this viewing area controller's model, setting the fields
-   * isPlaying, elapsedTimeSec and video from the updatedModel
+   * Applies updates to this karaoke area controller's model, setting the fields
+   * isPlaying, elapsedTimeSec, currentSong and songQueue from the updatedModel
    *
    * @param updatedModel
    */
