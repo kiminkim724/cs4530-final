@@ -3,6 +3,7 @@
 /* eslint-disable */
 import type { ConversationArea } from '../models/ConversationArea';
 import type { PosterSessionArea } from '../models/PosterSessionArea';
+import type { KaraokeArea } from '../models/KaraokeArea';
 import type { Town } from '../models/Town';
 import type { TownCreateParams } from '../models/TownCreateParams';
 import type { TownCreateResponse } from '../models/TownCreateResponse';
@@ -148,6 +149,37 @@ export class TownsService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/towns/{townID}/viewingArea',
+            path: {
+                'townID': townId,
+            },
+            headers: {
+                'X-Session-Token': xSessionToken,
+            },
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Invalid values specified`,
+            },
+        });
+    }
+
+    /**
+     * Creates a karaoke area in a given town
+     * @param townId ID of the town in which to create the new karaoke area
+     * @param xSessionToken session token of the player making the request, must
+     * match the session token returned when the player joined the town
+     * @param requestBody The new karaoke area to create
+     * @returns void
+     * @throws ApiError
+     */
+    public createKaraokeArea(
+        townId: string,
+        xSessionToken: string,
+        requestBody: KaraokeArea,
+    ): CancelablePromise<void> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/towns/{townID}/karaokeArea',
             path: {
                 'townID': townId,
             },

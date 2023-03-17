@@ -63,7 +63,7 @@ export default class KaraokeArea extends InteractableArea {
     super.remove(player);
     if (this._occupants.length === 0) {
       this._currentSong = undefined;
-      this._songQueue = []
+      this._songQueue = [];
       this._emitAreaChanged();
     }
   }
@@ -73,7 +73,12 @@ export default class KaraokeArea extends InteractableArea {
    *
    * @param karaokeArea updated model
    */
-  public updateModel({ isPlaying, elapsedTimeSec: progress, currentSong, songQueue }: KaraokeAreaModel) {
+  public updateModel({
+    isPlaying,
+    elapsedTimeSec: progress,
+    currentSong,
+    songQueue,
+  }: KaraokeAreaModel) {
     this._currentSong = currentSong;
     this._songQueue = songQueue;
     this._isPlaying = isPlaying;
@@ -106,6 +111,10 @@ export default class KaraokeArea extends InteractableArea {
       throw new Error(`Malformed karaoke area ${name}`);
     }
     const rect: BoundingBox = { x: mapObject.x, y: mapObject.y, width, height };
-    return new KaraokeArea({ isPlaying: false, id: name, elapsedTimeSec: 0, songQueue: [] }, rect, townEmitter);
+    return new KaraokeArea(
+      { isPlaying: false, id: name, elapsedTimeSec: 0, songQueue: [] },
+      rect,
+      townEmitter,
+    );
   }
 }

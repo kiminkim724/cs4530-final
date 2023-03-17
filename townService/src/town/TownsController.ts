@@ -23,6 +23,7 @@ import {
   TownSettingsUpdate,
   ViewingArea,
   PosterSessionArea,
+  KaraokeArea,
 } from '../types/CoveyTownSocket';
 import PosterSessionAreaReal from './PosterSessionArea';
 import { isPosterSessionArea } from '../TestUtils';
@@ -165,6 +166,37 @@ export class TownsController extends Controller {
   }
 
   /**
+   * Creates a karaoke area in a given town
+   *
+   * @param townID ID of the town in which to create the new karaoke area
+   * @param sessionToken session token of the player making the request, must
+   *        match the session token returned when the player joined the town
+   * @param requestBody The new karaoke area to create
+   *
+   * @throws InvalidParametersError if the session token is not valid, or if the
+   *          karaoke area could not be created
+   */
+  @Post('{townID}/karaokeArea')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async createKaraokeArea(
+    @Path() townID: string,
+    @Header('X-Session-Token') sessionToken: string,
+    @Body() requestBody: KaraokeArea,
+  ): Promise<void> {
+    const town = this._townsStore.getTownByID(townID);
+    if (!town) {
+      throw new InvalidParametersError('Invalid values specified');
+    }
+    if (!town?.getPlayerBySessionToken(sessionToken)) {
+      throw new InvalidParametersError('Invalid values specified');
+    }
+    const success = town.addKaraokeArea(requestBody);
+    if (!success) {
+      throw new InvalidParametersError('Invalid values specified');
+    }
+  }
+
+  /**
    * Creates a poster session area in a given town
    *
    * @param townID ID of the town in which to create the new poster session area
@@ -190,7 +222,7 @@ export class TownsController extends Controller {
     if (!curTown.getPlayerBySessionToken(sessionToken)) {
       throw new InvalidParametersError('Invalid session ID');
     }
-    // add viewing area to the town, throw error if it fails
+    // add Karaoke area to the town, throw error if it fails
     if (!curTown.addPosterSessionArea(requestBody)) {
       throw new InvalidParametersError('Invalid poster session area');
     }

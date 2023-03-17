@@ -7,6 +7,7 @@ import TypedEmitter from 'typed-emitter';
 import Interactable from '../components/Town/Interactable';
 import ViewingArea from '../components/Town/interactables/ViewingArea';
 import PosterSesssionArea from '../components/Town/interactables/PosterSessionArea';
+import KaraokeArea from '../components/Town/interactables/KaraokeArea';
 import { LoginController } from '../contexts/LoginControllerContext';
 import { TownsService, TownsServiceClient } from '../generated/client';
 import useTownController from '../hooks/useTownController';
@@ -17,12 +18,14 @@ import {
   TownSettingsUpdate,
   ViewingArea as ViewingAreaModel,
   PosterSessionArea as PosterSessionAreaModel,
+  KaraokeArea as KaraokeAreaModel,
 } from '../types/CoveyTownSocket';
 import { isConversationArea, isViewingArea, isPosterSessionArea } from '../types/TypeUtils';
 import ConversationAreaController from './ConversationAreaController';
 import PlayerController from './PlayerController';
 import ViewingAreaController from './ViewingAreaController';
 import PosterSessionAreaController from './PosterSessionAreaController';
+import KaraokeAreaController from './KaraokeAreaController';
 
 const CALCULATE_NEARBY_PLAYERS_DELAY = 300;
 
@@ -77,6 +80,11 @@ export type TownEvents = {
    * the town controller's record of poster session areas.
    */
   posterSessionAreasChanged: (newPosterSessionAreas: PosterSessionAreaController[]) => void;
+  /**
+   * An event that indicates that the set of poster session areas has changed. This event is emitted after updating
+   * the town controller's record of poster session areas.
+   */
+  karaokeAreasChanged: (newKaraokeAreas: KaraokeAreaController[]) => void;
   /**
    * An event that indicates that a new chat message has been received, which is the parameter passed to the listener
    */
@@ -135,7 +143,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   private _playersInternal: PlayerController[] = [];
 
   /**
-   * The current list of conversation areas in the twon. Adding or removing conversation areas might
+   * The current list of conversation areas in the town. Adding or removing conversation areas might
    * replace the array with a new one; clients should take note not to retain stale references.
    */
   private _conversationAreasInternal: ConversationAreaController[] = [];
@@ -199,6 +207,8 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   private _viewingAreas: ViewingAreaController[] = [];
 
   private _posterSessionAreas: PosterSessionAreaController[] = [];
+
+  private _karaokeAreas: KaraokeAreaController[] = [];
 
   public constructor({ userName, townID, loginController }: ConnectionProperties) {
     super();
@@ -328,6 +338,15 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     this.emit('posterSessionAreasChanged', newPosterSessionAreas);
   }
 
+  public get karaokeAreas() {
+    return this._karaokeAreas;
+  }
+
+  public set karaokeAreas(newKaraokeAreas: KaraokeAreaController[]) {
+    this._karaokeAreas = newKaraokeAreas;
+    this.emit('karaokeAreasChanged', newKaraokeAreas);
+  }
+
   /**
    * Begin interacting with an interactable object. Emits an event to all listeners.
    * @param interactedObj
@@ -447,6 +466,11 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
           relArea.updateFrom(interactable);
         }
       } else if (isPosterSessionArea(interactable)) {
+        const relArea = this.posterSessionAreas.find(area => area.id == interactable.id);
+        if (relArea) {
+          relArea.updateFrom(interactable);
+        }
+      } else if (isKaraokeArea(interactable)) {
         const relArea = this.posterSessionAreas.find(area => area.id == interactable.id);
         if (relArea) {
           relArea.updateFrom(interactable);
