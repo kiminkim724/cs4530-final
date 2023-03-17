@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { ConversationArea } from '../models/ConversationArea';
-import type { PosterSessionArea } from '../models/PosterSessionArea';
 import type { KaraokeArea } from '../models/KaraokeArea';
+import type { PosterSessionArea } from '../models/PosterSessionArea';
 import type { Town } from '../models/Town';
 import type { TownCreateParams } from '../models/TownCreateParams';
 import type { TownCreateResponse } from '../models/TownCreateResponse';
