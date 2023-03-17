@@ -24,13 +24,12 @@ export type KaraokeAreaEvents = {
    */
   songChange: (currentSong: string | undefined) => void;
 
-   /**
+  /**
    * A songQueueChange event indicates that the song queue for this karaoke area has changed.
    * Listeners are passed the new queue, which is either an empty array or a new array of strings
    * to indicate the new list of songs in the queue.
    */
   songQueueChange: (songQueue: string[]) => void;
-  
 };
 
 /**
@@ -50,6 +49,7 @@ export default class KaraokeAreaController extends (EventEmitter as new () => Ty
    *
    * @param karaokeAreaModel The karaoke area model that this controller should represent
    */
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   constructor(KaraokeAreaModel: KaraokeAreaModel) {
     super();
     this._model = KaraokeAreaModel;
@@ -132,13 +132,13 @@ export default class KaraokeAreaController extends (EventEmitter as new () => Ty
 
   /**
    * The current queue of songs, a list of strings of the song's Spotify URI,
-   * 
+   *
    * Changing this value will emit a songQueueChange event
    */
   public set songQueue(queue: string[]) {
-    if (this._model.songQueue != queue){
+    if (this._model.songQueue != queue) {
       this._model.songQueue = queue;
-      this.emit('songQueueChange', queue)
+      this.emit('songQueueChange', queue);
     }
   }
 
