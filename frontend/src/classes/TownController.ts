@@ -685,6 +685,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     } else {
       const newController = new KaraokeAreaController({
         id: karaokeArea.name,
+        currentSong: karaokeArea.defaultSong,
         songQueue: [],
         isPlaying: false,
         elapsedTimeSec: 0,

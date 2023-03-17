@@ -510,27 +510,22 @@
                  "y":1028.66683333333
                 }, 
                 {
-                 "type":"ConversationArea",
+                 "type":"KaraokeArea",
                  "height":223.999666666667,
                  "id":30,
                  "name":"Basement Dining Table 1",
+                 "properties":[
+                     {
+                      "name":"karaoke1",
+                      "type":"string",
+                      "value":"https:\/\/www.youtube.com\/watch?v=l40Ef1dg-6s"
+                     }],
                  "rotation":0,
                  "visible":true,
                  "width":164.667,
                  "x":3260.99983333333,
                  "y":1056.00016666667
                 }, 
-                {
-                     "type":"ConversationArea",
-                     "height":223.999666666667,
-                     "id":99,
-                     "name":"Basement Dining Table 3",
-                     "rotation":0,
-                     "visible":true,
-                     "width":164.667,
-                     "x":3260.99983333333,
-                     "y":1646.00016666667
-                    }, 
                 {
                  "type":"PosterSessionArea",
                  "height":224,

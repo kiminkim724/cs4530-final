@@ -23,8 +23,8 @@ export default class KaraokeArea extends Interactable {
     this._labelText = this.scene.add.text(
       this.x - this.displayWidth / 2,
       this.y - this.displayHeight / 2,
-      `Press space to look at the ${this.name} song`,
-      { color: '#FFFFFF', backgroundColor: '#000000' },
+      `Press space to listen to ${this.name}'s song`,
+      { color: '#FFFFFF', backgroundColor: '#7307fc' },
     );
     this._labelText.setVisible(false);
     this.townController.getKaraokeAreaController(this); // write this in TownController
