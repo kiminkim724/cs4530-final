@@ -25,6 +25,13 @@ export type KaraokeAreaEvents = {
   songChange: (currentSong: string | undefined) => void;
 
   /**
+   * A karaokeTitleChange event indicates that the title selected for this karaoke area has changed.
+   * Listeners are passed the new title, which is a string, or the value `undefined` to indicate
+   * that there is no song set.
+   */
+  karaokeTitleChange: (title: string | undefined) => void;
+
+  /**
    * A songQueueChange event indicates that the song queue for this karaoke area has changed.
    * Listeners are passed the new queue, which is either an empty array or a new array of strings
    * to indicate the new list of songs in the queue.
@@ -80,6 +87,25 @@ export default class KaraokeAreaController extends (EventEmitter as new () => Ty
     if (this._model.currentSong !== this.currentSong) {
       this._model.currentSong = song;
       this.emit('songChange', song);
+    }
+  }
+
+  /**
+   * The title assigned to this karaoke area, or undefined if there is not one.
+   */
+  public get currentTitle() {
+    return this._model.title;
+  }
+
+  /**
+   * The title assigned to this karaoke area, or undefined if there is not one.
+   *
+   * Changing this value will emit a 'karaokeTitleChange' event to listeners
+   */
+  public set currentTitle(title: string | undefined) {
+    if (this._model.title !== this._model.title) {
+      this._model.title = title;
+      this.emit('karaokeTitleChange', title);
     }
   }
 
@@ -157,6 +183,7 @@ export default class KaraokeAreaController extends (EventEmitter as new () => Ty
    */
   public updateFrom(updatedModel: KaraokeAreaModel): void {
     this.isPlaying = updatedModel.isPlaying;
+    this.currentTitle = updatedModel.title;
     this.elapsedTimeSec = updatedModel.elapsedTimeSec;
     this.currentSong = updatedModel.currentSong;
     this.songQueue = updatedModel.songQueue;

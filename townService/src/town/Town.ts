@@ -361,7 +361,7 @@ export default class Town {
    * Creates a new karaoke area in this town if there is not currently an active
    * karaoke area with the same ID. The karaoke area ID must match the name of a
    * karaoke area that exists in this town's map, and the karaoke area must not
-   * already have a current song set.
+   * already have a current song or title set.
    *
    * If successful creating the karaoke area, this method:
    *    Adds any players who are in the region defined by the karaoke area to it
@@ -372,18 +372,26 @@ export default class Town {
    *
    * @returns True if the karaoke area was created or false if there is no known
    * karaoke area with the specified ID or if there is already an active karaoke area
-   * with the specified ID or if there is no video URL specified
+   * with the specified ID or if the current song and title matches
    */
   public addKaraokeArea(karaokeArea: KaraokeAreaModel): boolean {
-    const area = this._interactables.find(
-      eachArea => eachArea.id === karaokeArea.id,
-    ) as KaraokeArea;
-    if (!area || !karaokeArea.currentSong || area.currentSong) {
+    if (!karaokeArea || !karaokeArea.title) {
       return false;
     }
-    area.updateModel(karaokeArea);
-    area.addPlayersWithinBounds(this._players);
-    this._broadcastEmitter.emit('interactableUpdate', area.toModel());
+
+    // find an existing poster session area with the same ID
+    const existingKaraokeArea = <KaraokeArea>(
+      this._interactables.find(area => area.id === karaokeArea.id && area instanceof KaraokeArea)
+    );
+
+    // if the id does not match an existing area, or if it does but the existing area
+    // already has a title and a current song
+    if (!existingKaraokeArea || (existingKaraokeArea.title && existingKaraokeArea.currentSong)) {
+      return false;
+    }
+    existingKaraokeArea.updateModel(karaokeArea);
+    existingKaraokeArea.addPlayersWithinBounds(this._players);
+    this._broadcastEmitter.emit('interactableUpdate', existingKaraokeArea.toModel());
     return true;
   }
 

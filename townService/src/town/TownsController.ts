@@ -222,7 +222,7 @@ export class TownsController extends Controller {
     if (!curTown.getPlayerBySessionToken(sessionToken)) {
       throw new InvalidParametersError('Invalid session ID');
     }
-    // add Karaoke area to the town, throw error if it fails
+    // add poster area to the town, throw error if it fails
     if (!curTown.addPosterSessionArea(requestBody)) {
       throw new InvalidParametersError('Invalid poster session area');
     }
