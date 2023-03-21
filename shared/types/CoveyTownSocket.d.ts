@@ -72,6 +72,7 @@ export interface ViewingArea {
 
 export interface KaraokeArea {
   id: string;
+  title?: string;
   currentSong?: string;
   songQueue: string[];
   isPlaying: boolean;
