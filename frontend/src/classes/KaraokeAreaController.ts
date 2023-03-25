@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import TypedEventEmitter from 'typed-emitter';
 import { KaraokeArea as KaraokeAreaModel } from '../types/CoveyTownSocket';
+import { useEffect, useState } from 'react';
 
 /**
  * The events that a KaraokeAreaController can emit
@@ -188,4 +189,17 @@ export default class KaraokeAreaController extends (EventEmitter as new () => Ty
     this.currentSong = updatedModel.currentSong;
     this.songQueue = updatedModel.songQueue;
   }
+}
+/**
+ * A hook that returns the title for the poster session area with the given controller
+ */
+export function useTitle(controller: KaraokeAreaController): string | undefined {
+  const [title, setTitle] = useState(controller.currentTitle);
+  useEffect(() => {
+    controller.addListener('karaokeTitleChange', setTitle);
+    return () => {
+      controller.removeListener('karaokeTitleChange', setTitle);
+    };
+  }, [controller]);
+  return title;
 }

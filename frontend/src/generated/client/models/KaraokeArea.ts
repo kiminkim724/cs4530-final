@@ -4,6 +4,7 @@
 
 export type KaraokeArea = {
     id: string;
+    title?: string;
     currentSong?: string;
     songQueue: Array<string>;
     isPlaying: boolean;

@@ -79,6 +79,7 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "id": {"dataType":"string","required":true},
+            "title": {"dataType":"string"},
             "currentSong": {"dataType":"string"},
             "songQueue": {"dataType":"array","array":{"dataType":"string"},"required":true},
             "isPlaying": {"dataType":"boolean","required":true},
