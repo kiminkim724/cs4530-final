@@ -1,4 +1,5 @@
 import assert from 'assert';
+import dotenv from 'dotenv';
 import {
   Body,
   Controller,
@@ -10,10 +11,12 @@ import {
   Path,
   Post,
   Response,
+  Request,
   Route,
   Tags,
 } from 'tsoa';
-
+import * as express from 'express';
+import axios from 'axios';
 import { Town, TownCreateParams, TownCreateResponse } from '../api/Model';
 import InvalidParametersError from '../lib/InvalidParametersError';
 import CoveyTownsStore from '../lib/TownsStore';
@@ -27,6 +30,8 @@ import {
 } from '../types/CoveyTownSocket';
 import PosterSessionAreaReal from './PosterSessionArea';
 import { isPosterSessionArea } from '../TestUtils';
+
+dotenv.config();
 
 /**
  * This is the town route
@@ -193,6 +198,80 @@ export class TownsController extends Controller {
     const success = town.addKaraokeArea(requestBody);
     if (!success) {
       throw new InvalidParametersError('Invalid values specified');
+    }
+  }
+
+  private _generateRandomString = (length: number) => {
+    let text = '';
+    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    for (let i = 0; i < length; i++) {
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    return text;
+  };
+
+  @Get('/login')
+  public async spotifyLogin(@Request() req: express.Request): Promise<void> {
+    const state = this._generateRandomString(16);
+    const scope = 'user-read-private user-read-email';
+    const clientId = process.env.CLIENT_ID || null;
+    const redirect = process.env.REDIRECT_URI || null;
+
+    let loginParams = {};
+    if (clientId && redirect) {
+      loginParams = new URLSearchParams({
+        client_id: clientId,
+        response_type: 'code',
+        // eslint-disable-next-line object-shorthand
+        scope: scope,
+        redirect_uri: redirect,
+        // eslint-disable-next-line object-shorthand
+        state: state,
+      });
+    }
+    const res = (<any>req).res as express.Response;
+    // redirect to Spotify login page
+    res.redirect(`https://accounts.spotify.com/authorize?${loginParams}`);
+  }
+
+  @Get('/callback')
+  public async callback(@Request() req: express.Request): Promise<void> {
+    const code = req.query.code || null;
+    const clientId = process.env.CLIENT_ID || null;
+    const clientSecret = process.env.CLIENT_SECRET || null;
+    const redirect = process.env.REDIRECT_URI || null;
+    const res = (<any>req).res as express.Response;
+
+    if (code && clientId && clientSecret && redirect) {
+      const authOptions = {
+        url: 'https://accounts.spotify.com/api/token',
+        body: {
+          grant_type: 'authorization_code',
+          // eslint-disable-next-line object-shorthand
+          code: code,
+          redirect_uri: redirect,
+        },
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+          'Authorization': `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
+        },
+        json: true,
+      };
+
+      const getToken = await axios
+        .post(authOptions.url, authOptions.body, {
+          headers: authOptions.headers,
+        })
+        .then(response => {
+          if (response.status === 200) {
+            res.send(response.data);
+          } else {
+            res.send(response);
+          }
+        })
+        .catch(error => {
+          res.send(error);
+        });
     }
   }
 
