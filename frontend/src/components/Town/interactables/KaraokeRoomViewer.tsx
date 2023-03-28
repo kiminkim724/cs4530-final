@@ -26,7 +26,9 @@ export function KaraokeRoom({
 }): JSX.Element {
   const townController = useTownController();
   const title = useTitle(controller);
-  console.log('120');
+  console.log(title);
+  console.log('first test');
+  console.log(townController.karaokeAreas);
   return (
     <Modal
       isOpen={isOpen}
@@ -37,7 +39,7 @@ export function KaraokeRoom({
       <ModalOverlay />
       <ModalContent>
         {<ModalHeader>{title} </ModalHeader>}
-        {<p>xyyyyyx</p>}
+        {<p>hello there!</p>}
         <ModalCloseButton />
       </ModalContent>
     </Modal>
@@ -56,29 +58,30 @@ export function KaraokeViewer({
 }): JSX.Element {
   const townController = useTownController();
   const karaokeAreaController = useKaraokeAreaController(karaokeArea.name);
-  console.log('122');
-  const [selectIsOpen, setSelectIsOpen] = useState(karaokeAreaController.currentTitle == undefined);
+  // console.log('122');
+  const [selectIsOpen, setSelectIsOpen] = useState(karaokeAreaController.title == undefined);
   const karaokeRoomTitle = useTitle(karaokeAreaController);
 
   useEffect(() => {
-    console.log('125');
+    // console.log('125');
     const setTitle = (title: string | undefined) => {
       if (!title) {
-        console.log('126');
+        // console.log('126');
         townController.interactableEmitter.emit('endIteraction', karaokeAreaController);
       } else {
-        console.log('127');
-        karaokeAreaController.currentTitle = title;
+        // console.log('127');
+        karaokeAreaController.title = title;
         console.log(title);
       }
     };
     karaokeAreaController.addListener('karaokeTitleChange', setTitle);
-    console.log('123');
+    // console.log('123');
     return () => {
       karaokeAreaController.removeListener('karaokeTitleChange', setTitle);
     };
   }, [karaokeAreaController, townController]);
   if (!karaokeRoomTitle) {
+    console.log(karaokeRoomTitle);
     console.log('shouldnt go here');
     return (
       <SelectKaraokeModal

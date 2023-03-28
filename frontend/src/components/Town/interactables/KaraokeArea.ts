@@ -9,7 +9,7 @@ export default class KaraokeArea extends Interactable {
 
   public get defaultTitle() {
     if (!this._defaultTitle) {
-      return 'No title found';
+      return 'beep boop';
     }
     return this._defaultTitle;
   }
