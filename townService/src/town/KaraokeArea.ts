@@ -10,6 +10,8 @@ import InteractableArea from './InteractableArea';
 export default class KaraokeArea extends InteractableArea {
   private _currentSong?: string;
 
+  private _title?: string;
+
   private _songQueue: string[];
 
   private _isPlaying: boolean;
@@ -18,6 +20,10 @@ export default class KaraokeArea extends InteractableArea {
 
   public get currentSong() {
     return this._currentSong;
+  }
+
+  public get title() {
+    return this._title;
   }
 
   public get songQueue() {
@@ -40,12 +46,13 @@ export default class KaraokeArea extends InteractableArea {
    * @param townEmitter a broadcast emitter that can be used to emit updates to players
    */
   public constructor(
-    { id, isPlaying, elapsedTimeSec: progress, currentSong }: KaraokeAreaModel,
+    { id, isPlaying, elapsedTimeSec: progress, currentSong, title }: KaraokeAreaModel,
     coordinates: BoundingBox,
     townEmitter: TownEmitter,
   ) {
     super(id, coordinates, townEmitter);
     this._currentSong = currentSong;
+    this._title = title;
     this._songQueue = [];
     this._elapsedTimeSec = progress;
     this._isPlaying = isPlaying;
@@ -54,7 +61,7 @@ export default class KaraokeArea extends InteractableArea {
   /**
    * Removes a player from this Karaoke area.
    *
-   * When the last player leaves, this method clears the video of this area and
+   * When the last player leaves, this method clears the karaoke area of this area and
    * emits that update to all of the players
    *
    * @param player
@@ -63,6 +70,7 @@ export default class KaraokeArea extends InteractableArea {
     super.remove(player);
     if (this._occupants.length === 0) {
       this._currentSong = undefined;
+      this._title = undefined;
       this._songQueue = [];
       this._emitAreaChanged();
     }
@@ -77,9 +85,11 @@ export default class KaraokeArea extends InteractableArea {
     isPlaying,
     elapsedTimeSec: progress,
     currentSong,
+    title,
     songQueue,
   }: KaraokeAreaModel) {
     this._currentSong = currentSong;
+    this._title = title;
     this._songQueue = songQueue;
     this._isPlaying = isPlaying;
     this._elapsedTimeSec = progress;

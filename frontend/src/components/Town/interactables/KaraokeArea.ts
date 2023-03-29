@@ -3,15 +3,15 @@ import Interactable, { KnownInteractableTypes } from '../Interactable';
 export default class KaraokeArea extends Interactable {
   private _labelText?: Phaser.GameObjects.Text;
 
-  private _defaultSong?: string;
+  private _defaultTitle?: string;
 
   private _isInteracting = false;
 
-  public get defaultSong() {
-    if (!this._defaultSong) {
-      return 'No song found';
+  public get defaultTitle() {
+    if (!this._defaultTitle) {
+      return 'beep boop';
     }
-    return this._defaultSong;
+    return this._defaultTitle;
   }
 
   addedToScene() {
@@ -19,7 +19,7 @@ export default class KaraokeArea extends Interactable {
     this.setTintFill();
     this.setAlpha(0.3);
 
-    this._defaultSong = this.getData('song');
+    this._defaultTitle = this.getData('title');
     this._labelText = this.scene.add.text(
       this.x - this.displayWidth / 2,
       this.y - this.displayHeight / 2,

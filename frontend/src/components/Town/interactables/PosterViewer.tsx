@@ -43,6 +43,7 @@ export function PosterImage({
   isOpen: boolean;
   close: () => void;
 }): JSX.Element {
+  console.log('10');
   const imageContents = useImageContents(controller);
   const stars = useStars(controller);
   const title = useTitle(controller);
@@ -56,6 +57,7 @@ export function PosterImage({
   // increment the stars on a poster
   // but only increment if the current player has not already starred the poster
   function incStars() {
+    console.log('reached stars');
     if (!controller.playersWhoStarred.includes(curPlayerId)) {
       controller.addPlayerWhoStarred(curPlayerId);
       townController
@@ -109,6 +111,7 @@ export function PosterViewer({
 }: {
   posterSessionArea: PosterSessionAreaInteractable;
 }): JSX.Element {
+  console.log('11');
   const townController = useTownController();
   const posterSessionAreaController = usePosterSessionAreaController(posterSessionArea.name);
   const [selectIsOpen, setSelectIsOpen] = useState(

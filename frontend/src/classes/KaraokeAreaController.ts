@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import TypedEventEmitter from 'typed-emitter';
 import { KaraokeArea as KaraokeAreaModel } from '../types/CoveyTownSocket';
+import { useEffect, useState } from 'react';
 
 /**
  * The events that a KaraokeAreaController can emit
@@ -23,6 +24,13 @@ export type KaraokeAreaEvents = {
    * the value `undefined` to indicate that there is no song set.
    */
   songChange: (currentSong: string | undefined) => void;
+
+  /**
+   * A karaokeTitleChange event indicates that the title selected for this karaoke area has changed.
+   * Listeners are passed the new title, which is a string, or the value `undefined` to indicate
+   * that there is no song set.
+   */
+  karaokeTitleChange: (title: string | undefined) => void;
 
   /**
    * A songQueueChange event indicates that the song queue for this karaoke area has changed.
@@ -80,6 +88,27 @@ export default class KaraokeAreaController extends (EventEmitter as new () => Ty
     if (this._model.currentSong !== this.currentSong) {
       this._model.currentSong = song;
       this.emit('songChange', song);
+    }
+  }
+
+  /**
+   * The title assigned to this karaoke area, or undefined if there is not one.
+   */
+  public get title() {
+    console.log('getting ', this._model.title);
+    return this._model.title;
+  }
+
+  /**
+   * The title assigned to this karaoke area, or undefined if there is not one.
+   *
+   * Changing this value will emit a 'karaokeTitleChange' event to listeners
+   */
+  public set title(title: string | undefined) {
+    console.log('line 107', this._model.title);
+    if (this._model.title !== this._model.title) {
+      this._model.title = title;
+      this.emit('karaokeTitleChange', title);
     }
   }
 
@@ -157,8 +186,23 @@ export default class KaraokeAreaController extends (EventEmitter as new () => Ty
    */
   public updateFrom(updatedModel: KaraokeAreaModel): void {
     this.isPlaying = updatedModel.isPlaying;
+    this.title = updatedModel.title;
     this.elapsedTimeSec = updatedModel.elapsedTimeSec;
     this.currentSong = updatedModel.currentSong;
     this.songQueue = updatedModel.songQueue;
   }
+}
+/**
+ * A hook that returns the title for the karaoke area with the given controller
+ */
+export function useTitle(controller: KaraokeAreaController): string | undefined {
+  console.log(controller.title, ' xyz');
+  const [title, setTitle] = useState(controller.title);
+  useEffect(() => {
+    controller.addListener('karaokeTitleChange', setTitle);
+    return () => {
+      controller.removeListener('karaokeTitleChange', setTitle);
+    };
+  }, [controller]);
+  return title;
 }
