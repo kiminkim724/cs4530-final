@@ -210,8 +210,27 @@ export class TownsController extends Controller {
     return text;
   };
 
-  @Get('/authorize')
-  public async spotifyAuthorize(@Request() req: express.Request): Promise<void> {
+  @Get('{townID}/{karaokeSessionId}/authorize')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async spotifyAuthorize(
+    @Path() townID: string,
+    @Path() karaokeSessionId: string,
+    @Header('X-Session-Token') sessionToken: string,
+    @Request() req: express.Request,
+  ): Promise<void> {
+    const curTown = this._townsStore.getTownByID(townID);
+    if (!curTown) {
+      throw new InvalidParametersError('Invalid town ID');
+    }
+    if (!curTown.getPlayerBySessionToken(sessionToken)) {
+      throw new InvalidParametersError('Invalid session ID');
+    }
+
+    const karaokeSessionArea = curTown.getInteractable(karaokeSessionId);
+    if (!karaokeSessionArea || !isPosterSessionArea(karaokeSessionArea)) {
+      throw new InvalidParametersError('Invalid karaoke session ID');
+    }
+
     const state = this._generateRandomString(16);
     const scope = 'user-read-private user-read-email';
     const clientId = process.env.CLIENT_ID || null;
@@ -234,8 +253,27 @@ export class TownsController extends Controller {
     }
   }
 
-  @Get('/callback')
-  public async spotifyCallback(@Request() req: express.Request): Promise<void> {
+  @Get('{townID}/{karaokeSessionId}/callback')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async spotifyCallback(
+    @Path() townID: string,
+    @Path() karaokeSessionId: string,
+    @Header('X-Session-Token') sessionToken: string,
+    @Request() req: express.Request,
+  ): Promise<void> {
+    const curTown = this._townsStore.getTownByID(townID);
+    if (!curTown) {
+      throw new InvalidParametersError('Invalid town ID');
+    }
+    if (!curTown.getPlayerBySessionToken(sessionToken)) {
+      throw new InvalidParametersError('Invalid session ID');
+    }
+
+    const karaokeSessionArea = curTown.getInteractable(karaokeSessionId);
+    if (!karaokeSessionArea || !isPosterSessionArea(karaokeSessionArea)) {
+      throw new InvalidParametersError('Invalid karaoke session ID');
+    }
+
     const code = req.query.code || null;
     const clientId = process.env.CLIENT_ID || null;
     const clientSecret = process.env.CLIENT_SECRET || null;
@@ -261,6 +299,7 @@ export class TownsController extends Controller {
             },
           },
         )
+        // DO SOMETHING WITH THE RESPONSE LATER
         .then(response => {
           if (response.status === 200) {
             res.send(response.data);
@@ -274,8 +313,27 @@ export class TownsController extends Controller {
     }
   }
 
-  @Get('/clientCredentials')
-  public async spotifyClientCredentials(@Request() req: express.Request): Promise<void> {
+  @Get('{townID}/{karaokeSessionId}/clientCredentials')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async spotifyClientCredentials(
+    @Path() townID: string,
+    @Path() karaokeSessionId: string,
+    @Header('X-Session-Token') sessionToken: string,
+    @Request() req: express.Request,
+  ): Promise<void> {
+    const curTown = this._townsStore.getTownByID(townID);
+    if (!curTown) {
+      throw new InvalidParametersError('Invalid town ID');
+    }
+    if (!curTown.getPlayerBySessionToken(sessionToken)) {
+      throw new InvalidParametersError('Invalid session ID');
+    }
+
+    const karaokeSessionArea = curTown.getInteractable(karaokeSessionId);
+    if (!karaokeSessionArea || !isPosterSessionArea(karaokeSessionArea)) {
+      throw new InvalidParametersError('Invalid karaoke session ID');
+    }
+
     const clientId = process.env.CLIENT_ID || null;
     const clientSecret = process.env.CLIENT_SECRET || null;
     const res = (<any>req).res as express.Response;
@@ -296,6 +354,7 @@ export class TownsController extends Controller {
             },
           },
         )
+        // DO SOMETHING WITH THE RESPONSE LATER
         .then(response => {
           if (response.status === 200) {
             res.send(response.data);
