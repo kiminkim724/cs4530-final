@@ -1,35 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Searcher from '../KaraokeAreaComponents/Searcher';
-import SongQueue from '../KaraokeAreaComponents/songQueue';
+import Searcher from './KaraokeAreaComponents/Searcher';
+import SongQueue from './KaraokeAreaComponents/songQueue';
+import 'spotify-web-playback-sdk';
 
-
-type Track = {
-    name: string,
-    album: {
-        images: [
-            { url: string }
-        ]
-    },
-    artists: [
-        { name: string }
-    ],
-    id: string
-}
-
-type StateChange = { 
-    track_window: { current_track: { id: any; name?: String; album?: { images: [{ url: string; }]; }; artists?: [{ name: string; }]; }; }; position: any; duration: any; paused: boolean | ((prevState: boolean) => boolean); }
-
-const track: Track = {
-    name: "",
-    album: {
-        images: [
-            { url: "" }
-        ]
-    },
-    artists: [
-        { name: "" }
-    ],
-    id: "-1"
+type StateChange = {
+    track_window: { current_track: { id: any; name?: String; album?: { images: [{ url: string; }]; }; artists?: [{ name: string; }]; }; }; position: any; duration: any; paused: boolean | ((prevState: boolean) => boolean);
 }
 
 
@@ -65,7 +40,7 @@ const fetchPlus: (url: string, options: {} | undefined, retries: number) => Prom
         })
         .catch(error => console.error(error.message))
 
-function millisToMinutesAndSeconds(millis: number) {
+function millisToMinutesAndSeconds(millis: number): string {
     const minutes = Math.floor(millis / 60000);
     const seconds = parseInt(((millis % 60000) / 1000).toFixed(0));
     return (
@@ -75,12 +50,12 @@ function millisToMinutesAndSeconds(millis: number) {
     );
 }
 
-function WebPlayback(props: {token: String}): JSX.Element {
+function WebPlayback(props: { token: string }): JSX.Element {
     const [token, setToken] = useState('')
     const [is_paused, setPaused] = useState(false);
     const [is_active, setActive] = useState(false);
-    const [player, setPlayer] = useState(undefined);
-    const [current_track, setTrack] = useState(track);
+    const [player, setPlayer] = useState<Spotify.Player>();
+    const [current_track, setTrack] = useState<Spotify.Track>();
     const [current_queue, setQueue] = useState(['7ouMYWpwJ422jRcDASZB7P', '4VqPOruhp5EdPBeR92t6lQ', '2takcwOaAZWiXQijPHIx7B'])
     const [deviceID, setDeviceID] = useState('');
     const [current_time, setTime] = useState(0);
@@ -88,7 +63,7 @@ function WebPlayback(props: {token: String}): JSX.Element {
     const queueRef = useRef(current_queue);
     const trackRef = useRef(current_track);
 
-    const setMyTrack = (data: Track) => {
+    const setMyTrack = (data: Spotify.Track) => {
         trackRef.current = data;
         setTrack(data);
     };
@@ -125,7 +100,7 @@ function WebPlayback(props: {token: String}): JSX.Element {
             },
         }, 3)
             .then(response => {
-                response.json().then(async (result: Track) => {
+                response.json().then(async (result: Spotify.Track) => {
                     setMyTrack(result);
                     await fetchPlus(`https://api.spotify.com/v1/me/player/play`, {
                         method: "PUT",
@@ -183,29 +158,31 @@ function WebPlayback(props: {token: String}): JSX.Element {
 
             const player = new window.Spotify.Player({
                 name: 'Web Playback SDK',
-                getOAuthToken: (cb: (arg0: String) => void) => { cb(props.token); },
+                getOAuthToken: cb => { cb(props.token); },
                 volume: 0.5
             });
 
             setPlayer(player);
 
-            player.addListener('ready', ({ device_id }: {device_id: string}) => {
+            player.addListener('ready', ({ device_id }: { device_id: string }) => {
                 console.log('Ready with Device ID', device_id);
                 setDeviceID(device_id);
                 transferPlaybackHere(device_id, props.token)
             });
 
-            player.addListener('not_ready', ({ device_id }: {device_id: string}) => {
+            player.addListener('not_ready', ({ device_id }: { device_id: string }) => {
                 console.log('Device ID has gone offline', device_id);
             });
 
-            player.addListener('player_state_changed', (async (state: StateChange) => {
+            player.addListener('player_state_changed', (async (state) => {
 
                 if (!state) {
                     return;
                 }
-                if (trackRef.current.id != "-1" && state.track_window.current_track.id != trackRef.current.id) {
-                    playSong(trackRef.current.id);
+                if (trackRef.current && state.track_window.current_track.id != trackRef.current.id) {
+                    if (trackRef.current.id) {
+                        playSong(trackRef.current.id);
+                    }
                 } else {
                     setMyTrack(state.track_window.current_track);
                 }
@@ -214,11 +191,9 @@ function WebPlayback(props: {token: String}): JSX.Element {
                     console.log(queueRef.current)
                     if (queueRef.current.length > 0) {
                         console.log('Track ended');
-                        playNextSong()
+                        playNextSong();
                     } else {
-                        player.pause().then(
-                            console.log('paused')
-                        )
+                        player.pause();
                     }
                 } else {
                     setPaused(state.paused);
@@ -245,7 +220,7 @@ function WebPlayback(props: {token: String}): JSX.Element {
 
 
 
-    if (!is_active) {
+    if (!player) {
         return (
             <>
                 <div className="container">
@@ -264,13 +239,16 @@ function WebPlayback(props: {token: String}): JSX.Element {
                     <div className="container">
                         <div className="main-wrapper">
 
-                            <img src={current_track.album.images[0].url} className="now-playing__cover" alt="" />
+                            <img src={current_track?.album.images[0].url} className="now-playing__cover" alt="" />
 
                             <div className="now-playing__side">
-                                <div className="now-playing__name">{current_track.name}</div>
-                                <div className="now-playing__artist">{current_track.artists[0].name}</div>
+                                <div className="now-playing__name">{current_track?.name}</div>
+                                <div className="now-playing__artist">{current_track?.artists[0].name}</div>
                                 <div className="now-playing__artist">
-                                    {millisToMinutesAndSeconds(current_time)}/{millisToMinutesAndSeconds(current_track.duration_ms)}
+                                    {current_track ? 
+                                    millisToMinutesAndSeconds(current_time)+ "/" + millisToMinutesAndSeconds(current_track.duration_ms)
+                                    : "N/A"}
+
                                 </div>
 
                                 <button className="btn-spotify" onClick={() => { player.togglePlay() }} >
