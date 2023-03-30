@@ -276,12 +276,11 @@ export class TownsController extends Controller {
 
   @Get('/clientCredentials')
   public async spotifyClientCredentials(@Request() req: express.Request): Promise<void> {
-    const code = req.query.code || null;
     const clientId = process.env.CLIENT_ID || null;
     const clientSecret = process.env.CLIENT_SECRET || null;
     const res = (<any>req).res as express.Response;
 
-    if (code && clientId && clientSecret) {
+    if (clientId && clientSecret) {
       const getToken = await axios
         .post(
           'https://accounts.spotify.com/api/token',
