@@ -3,11 +3,6 @@ import Searcher from './KaraokeAreaComponents/Searcher';
 import SongQueue from './KaraokeAreaComponents/songQueue';
 import 'spotify-web-playback-sdk';
 
-type StateChange = {
-    track_window: { current_track: { id: any; name?: String; album?: { images: [{ url: string; }]; }; artists?: [{ name: string; }]; }; }; position: any; duration: any; paused: boolean | ((prevState: boolean) => boolean);
-}
-
-
 function transferPlaybackHere(deviceID: string, token: String) {
     // https://beta.developer.spotify.com/documentation/web-api/reference/player/transfer-a-users-playback/
     console.log('transferring')
@@ -110,7 +105,7 @@ function WebPlayback(props: { token: string }): JSX.Element {
                         },
                         body: JSON.stringify({
                             "device_id": deviceID,
-                            "uris": [response.uri],
+                            "uris": [result.uri],
                             "position_ms": 0
                         })
                     }, 3).catch(error => console.log(error))
