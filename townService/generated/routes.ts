@@ -292,11 +292,11 @@ export function RegisterRoutes(app: express.Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/towns/login',
+        app.get('/towns/auth/authorize',
             ...(fetchMiddlewares<RequestHandler>(TownsController)),
-            ...(fetchMiddlewares<RequestHandler>(TownsController.prototype.spotifyLogin)),
+            ...(fetchMiddlewares<RequestHandler>(TownsController.prototype.spotifyAuthorize)),
 
-            function TownsController_spotifyLogin(request: any, response: any, next: any) {
+            function TownsController_spotifyAuthorize(request: any, response: any, next: any) {
             const args = {
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
@@ -310,18 +310,18 @@ export function RegisterRoutes(app: express.Router) {
                 const controller = new TownsController();
 
 
-              const promise = controller.spotifyLogin.apply(controller, validatedArgs as any);
+              const promise = controller.spotifyAuthorize.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/towns/callback',
+        app.get('/towns/auth/callback',
             ...(fetchMiddlewares<RequestHandler>(TownsController)),
-            ...(fetchMiddlewares<RequestHandler>(TownsController.prototype.callback)),
+            ...(fetchMiddlewares<RequestHandler>(TownsController.prototype.spotifyCallback)),
 
-            function TownsController_callback(request: any, response: any, next: any) {
+            function TownsController_spotifyCallback(request: any, response: any, next: any) {
             const args = {
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
@@ -335,7 +335,7 @@ export function RegisterRoutes(app: express.Router) {
                 const controller = new TownsController();
 
 
-              const promise = controller.callback.apply(controller, validatedArgs as any);
+              const promise = controller.spotifyCallback.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);

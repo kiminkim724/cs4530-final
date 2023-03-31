@@ -5,6 +5,7 @@ import KaraokeAreaController, { useTitle } from '../../../classes/KaraokeAreaCon
 import useTownController from '../../../hooks/useTownController';
 import SelectKaraokeModal from './SelectKaraokeModal';
 import KaraokeSessionInteractable from './KaraokeArea';
+import WebPlayback from './WebPlayback';
 
 /**
  * The Karaoke Room Viewer component does the following:
@@ -29,6 +30,21 @@ export function KaraokeRoom({
   console.log(title);
   console.log('first test');
   console.log(townController.karaokeAreas);
+
+  const [token, setToken] = useState('');
+  const id = crypto.randomUUID();
+
+  useEffect(() => {
+
+    async function getToken() {
+      const response = await fetch('/towns/auth/authorize');
+      const json = await response.json();
+      setToken(json.access_token);
+    }
+
+    //getToken();
+
+  }, []);
   return (
     <Modal
       isOpen={isOpen}
@@ -39,7 +55,7 @@ export function KaraokeRoom({
       <ModalOverlay />
       <ModalContent>
         {<ModalHeader>{title} </ModalHeader>}
-        {<p>hello there!</p>}
+        <WebPlayback token={"BQDQHi9UngLPP0i_OYeAknVJhgtw9GYcNzE6eLdgGwWEQsh2dV0qBtteSB4TfjfcboGPOGHlE623RayxUyFUkIfe5FUxsFA0fBdxdDvZS6uT4cYM3u9UWJASE5gW73ILfSAEhgk_yUW6jNH2zLckM91TEk0fgM_nPHuZyGb9cTG-D8d6v5p4Fqr9fdt4kHKPP-zt2R8E"} />
         <ModalCloseButton />
       </ModalContent>
     </Modal>

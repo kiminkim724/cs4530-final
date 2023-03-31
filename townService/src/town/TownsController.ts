@@ -210,32 +210,39 @@ export class TownsController extends Controller {
     return text;
   };
 
-  @Get('/login')
-  public async spotifyLogin(@Request() req: express.Request): Promise<void> {
+  @Get('/auth/authorize')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async spotifyAuthorize(
+    @Request() req: express.Request,
+  ): Promise<void> {
+
     const state = this._generateRandomString(16);
-    const scope = 'user-read-private user-read-email';
+    const scope = 'streaming user-read-private user-read-email';
     const clientId = process.env.CLIENT_ID || null;
     const redirect = process.env.REDIRECT_URI || null;
-
-    let loginParams = {};
-    if (clientId && redirect) {
-      loginParams = new URLSearchParams({
-        client_id: clientId,
-        response_type: 'code',
-        // eslint-disable-next-line object-shorthand
-        scope: scope,
-        redirect_uri: redirect,
-        // eslint-disable-next-line object-shorthand
-        state: state,
-      });
-    }
     const res = (<any>req).res as express.Response;
-    // redirect to Spotify login page
-    res.redirect(`https://accounts.spotify.com/authorize?${loginParams}`);
+
+    if (clientId && redirect) {
+      // redirect to Spotify login page
+      res.redirect(
+        `https://accounts.spotify.com/authorize?${new URLSearchParams({
+          client_id: clientId,
+          response_type: 'code',
+          // eslint-disable-next-line object-shorthand
+          scope: scope,
+          redirect_uri: redirect,
+          // eslint-disable-next-line object-shorthand
+          state: state,
+        })}`,
+      );
+    }
   }
 
-  @Get('/callback')
-  public async callback(@Request() req: express.Request): Promise<void> {
+  @Get('/auth/callback')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async spotifyCallback(
+    @Request() req: express.Request,
+  ): Promise<void> {
     const code = req.query.code || null;
     const clientId = process.env.CLIENT_ID || null;
     const clientSecret = process.env.CLIENT_SECRET || null;
@@ -243,25 +250,25 @@ export class TownsController extends Controller {
     const res = (<any>req).res as express.Response;
 
     if (code && clientId && clientSecret && redirect) {
-      const authOptions = {
-        url: 'https://accounts.spotify.com/api/token',
-        body: {
-          grant_type: 'authorization_code',
-          // eslint-disable-next-line object-shorthand
-          code: code,
-          redirect_uri: redirect,
-        },
-        headers: {
-          'content-type': 'application/x-www-form-urlencoded',
-          'Authorization': `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
-        },
-        json: true,
-      };
-
       const getToken = await axios
-        .post(authOptions.url, authOptions.body, {
-          headers: authOptions.headers,
-        })
+        .post(
+          'https://accounts.spotify.com/api/token',
+          new URLSearchParams({
+            // eslint-disable-next-line object-shorthand
+            code: code as string,
+            redirect_uri: redirect,
+            grant_type: 'authorization_code',
+          }),
+          {
+            headers: {
+              'Authorization': `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString(
+                'base64',
+              )}`,
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          },
+        )
+        // DO SOMETHING WITH THE RESPONSE LATER
         .then(response => {
           if (response.status === 200) {
             res.send(response.data);

@@ -195,6 +195,34 @@ export class TownsService {
     }
 
     /**
+     * @returns void
+     * @throws ApiError
+     */
+    public spotifyAuthorize(): CancelablePromise<void> {
+        return this.httpRequest.request({
+            method: 'GET',
+            url: '/towns/auth/authorize',
+            errors: {
+                400: `Invalid values specified`,
+            },
+        });
+    }
+
+    /**
+     * @returns void
+     * @throws ApiError
+     */
+    public spotifyCallback(): CancelablePromise<void> {
+        return this.httpRequest.request({
+            method: 'GET',
+            url: '/towns/auth/callback',
+            errors: {
+                400: `Invalid values specified`,
+            },
+        });
+    }
+
+    /**
      * Creates a poster session area in a given town
      * @param townId ID of the town in which to create the new poster session area
      * @param xSessionToken session token of the player making the request, must
