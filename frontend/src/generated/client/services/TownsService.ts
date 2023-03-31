@@ -194,6 +194,68 @@ export class TownsService {
         });
     }
 
+    public authorize(
+        townId: string,
+        karaokeSessionId: string,
+        xSessionToken: string,
+    ): CancelablePromise<void> {
+        return this.httpRequest.request({
+            method: 'GET',
+            url: '/towns/{townID}/{posterSessionId}/authorize',
+            path: {
+                'townID': townId,
+                'posterSessionId': karaokeSessionId,
+            },
+            headers: {
+                'X-Session-Token': xSessionToken,
+            },
+            errors: {
+                400: `Invalid values specified`,
+            },
+        });
+    }
+
+    public callback(
+        townId: string,
+        karaokeSessionId: string,
+        xSessionToken: string,
+    ): CancelablePromise<void> {
+        return this.httpRequest.request({
+            method: 'GET',
+            url: '/towns/{townID}/{posterSessionId}/callback',
+            path: {
+                'townID': townId,
+                'posterSessionId': karaokeSessionId,
+            },
+            headers: {
+                'X-Session-Token': xSessionToken,
+            },
+            errors: {
+                400: `Invalid values specified`,
+            },
+        });
+    }
+
+    public clientCredentials(
+        townId: string,
+        karaokeSessionId: string,
+        xSessionToken: string,
+    ): CancelablePromise<void> {
+        return this.httpRequest.request({
+            method: 'GET',
+            url: '/towns/{townID}/{posterSessionId}/clientCredentials',
+            path: {
+                'townID': townId,
+                'posterSessionId': karaokeSessionId,
+            },
+            headers: {
+                'X-Session-Token': xSessionToken,
+            },
+            errors: {
+                400: `Invalid values specified`,
+            },
+        });
+    }
     /**
      * Creates a poster session area in a given town
      * @param townId ID of the town in which to create the new poster session area
