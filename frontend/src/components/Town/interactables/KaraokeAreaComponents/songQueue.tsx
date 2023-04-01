@@ -1,13 +1,22 @@
+///  <reference types="@types/spotify-web-playback-sdk"/>
+
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Row, Card, CardGroup, Col } from 'react-bootstrap';
 
-function SongQueue(props) {
-  const [song_queue, setSongQueue] = useState([]);
-  useEffect(async () => {
+interface Track {
+  image: string;
+  artist: { name: string };
+  name: string;
+  id: string;
+}
+
+function SongQueue(props: { queue: string[]; token: string }) {
+  const [songQueue, setSongQueue] = useState<Track[]>([]);
+  useEffect(() => {
     async function getSongs() {
       Promise.all(
-        props.queue.map(id =>
+        props.queue.map((id: string) =>
           fetch(`https://api.spotify.com/v1/tracks/${id}`, {
             method: 'GET',
             headers: {
@@ -17,7 +26,7 @@ function SongQueue(props) {
           }),
         ),
       ).then(responses => {
-        Promise.all(responses.map(res => res.json())).then(results => {
+        Promise.all(responses.map(res => res.json())).then(results =>
           setSongQueue(
             results.map(song => {
               const songInfo = {
@@ -28,8 +37,8 @@ function SongQueue(props) {
               };
               return songInfo;
             }),
-          );
-        });
+          ),
+        );
       });
     }
     getSongs();
@@ -42,7 +51,7 @@ function SongQueue(props) {
       </Container>
       <Container>
         <CardGroup className='m-2 d-block'>
-          {song_queue.map(song => (
+          {songQueue.map(song => (
             <Card key={song.id} className='bg-secondary'>
               <Row className='row no-gutters'>
                 <Col>

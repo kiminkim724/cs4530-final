@@ -1,5 +1,5 @@
-import { Modal, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
+import { ChakraProvider, Modal, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useInteractable, useKaraokeAreaController } from '../../../classes/TownController';
 import KaraokeAreaController, { useTitle } from '../../../classes/KaraokeAreaController';
 import useTownController from '../../../hooks/useTownController';
@@ -31,34 +31,18 @@ export function KaraokeRoom({
   console.log('first test');
   console.log(townController.karaokeAreas);
 
-  const [token, setToken] = useState('');
-  const id = crypto.randomUUID();
-
-  useEffect(() => {
-
-    async function getToken() {
-      const response = await fetch('/towns/auth/authorize');
-      const json = await response.json();
-      setToken(json.access_token);
-    }
-
-    //getToken();
-
-  }, []);
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={() => {
-        close();
-        townController.unPause();
-      }}>
-      <ModalOverlay />
-      <ModalContent>
-        {<ModalHeader>{title} </ModalHeader>}
-        <WebPlayback token={"BQDQHi9UngLPP0i_OYeAknVJhgtw9GYcNzE6eLdgGwWEQsh2dV0qBtteSB4TfjfcboGPOGHlE623RayxUyFUkIfe5FUxsFA0fBdxdDvZS6uT4cYM3u9UWJASE5gW73ILfSAEhgk_yUW6jNH2zLckM91TEk0fgM_nPHuZyGb9cTG-D8d6v5p4Fqr9fdt4kHKPP-zt2R8E"} />
-        <ModalCloseButton />
-      </ModalContent>
-    </Modal>
+        <WebPlayback
+          isOpen={isOpen}
+          onClose={() => {
+            close();
+            townController.unPause();
+          }}
+          title={title}
+          token={
+            'BQAgMRdHKop8hR3wtl0aIOtZ1gU_UDm2zsDOqmWuRxQBaGLAIpptxGB_AjU3pJjPLk5chCC0flV-lrvCnRXZ2PhfMqVBzkwG1M4P1E4UCWT275iRTwupOv_V24_9q6LYxNsE1N1eNs8YkvUxRjMzzrt8wFhd-AExlLeljRCzJSu5PS1kdXLn5Ah0eB_I-pY58KNuBzhe'
+          }
+        />
   );
 }
 

@@ -1,10 +1,8 @@
 ///  <reference types="@types/spotify-web-playback-sdk"/>
+import { Modal, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/react';
 import React, { useState, useEffect, useRef } from 'react';
 import Searcher from './KaraokeAreaComponents/Searcher';
 import SongQueue from './KaraokeAreaComponents/songQueue';
-
-
-
 
 function transferPlaybackHere(deviceID: string, token: string) {
   // https://beta.developer.spotify.com/documentation/web-api/reference/player/transfer-a-users-playback/
@@ -24,10 +22,10 @@ function transferPlaybackHere(deviceID: string, token: string) {
   }).then(() => console.log('transferred'));
 }
 
-const fetchPlus: (url: string, options: any | undefined, retries: number) => Promise<any> = async (
+const fetchPlus: (url: string, options: RequestInit, retries: number) => Promise<any> = async (
   url: string,
+  options: RequestInit,
   retries: number,
-  options: any,
 ) =>
   fetch(url, options)
     .then(res => {
@@ -36,7 +34,9 @@ const fetchPlus: (url: string, options: any | undefined, retries: number) => Pro
       }
       if (retries > 0) {
         console.log('retrying');
-        return fetchPlus(url, options, retries - 1);
+        setTimeout(() => {
+          return fetchPlus(url, options, retries - 1);
+        }, 1000);
       }
       //throw new Error(res.status)
     })
@@ -48,7 +48,9 @@ function millisToMinutesAndSeconds(millis: number): string {
   return seconds == 60 ? minutes + 1 + ':00' : minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
 }
 
-function WebPlayback(props: { token: string }): JSX.Element {
+
+
+function WebPlayback(props: { isOpen: boolean; onClose: () => void; title?: string; token: string; }): JSX.Element {
   const [token, setToken] = useState('');
   const [isPaused, setPaused] = useState(false);
   const [isActive, setActive] = useState(false);
@@ -61,6 +63,7 @@ function WebPlayback(props: { token: string }): JSX.Element {
   ]);
   const [deviceID, setDeviceID] = useState('');
   const [currentTime, setTime] = useState(0);
+  const [intervalID, setIntervalID] = useState<NodeJS.Timer>();
   const timeRef = useRef(currentTime);
   const queueRef = useRef(currentQueue);
   const trackRef = useRef(currentTrack);
@@ -81,7 +84,7 @@ function WebPlayback(props: { token: string }): JSX.Element {
   };
 
   const addSong = (id: string) => {
-    if (currentQueue.find(song => song === id)) {
+    if (id && currentQueue.find(song => song === id)) {
       console.log('song already in queue');
     } else {
       console.log('adding song to queue');
@@ -99,7 +102,7 @@ function WebPlayback(props: { token: string }): JSX.Element {
       {
         method: 'GET',
         headers: {
-          'authorization': `Bearer ${props.token}`,
+          'authorization': `Bearer${props.token}`,
           'Content-Type': 'application/json',
         },
       },
@@ -131,6 +134,7 @@ function WebPlayback(props: { token: string }): JSX.Element {
     console.log(queueRef.current);
     if (currentQueue.length > 0) {
       const id = queueRef.current[0];
+      console.log(id);
       setMyQueue(queueRef.current.splice(1));
       playSong(id);
     } else {
@@ -146,8 +150,9 @@ function WebPlayback(props: { token: string }): JSX.Element {
 
   useEffect(() => {}, [currentTime]);
 
+  useEffect(() => {}, [intervalID]);
+
   useEffect(() => {
-    console.log(token)
   }, [token]);
 
   useEffect(() => {
@@ -186,6 +191,7 @@ function WebPlayback(props: { token: string }): JSX.Element {
         if (!state) {
           return;
         }
+
         if (trackRef.current && state.track_window.current_track.id != trackRef.current.id) {
           if (trackRef.current.id) {
             playSong(trackRef.current.id);
@@ -223,7 +229,12 @@ function WebPlayback(props: { token: string }): JSX.Element {
           }
         });
       }, 1000);
-      return () => clearInterval(interval);
+      setIntervalID(interval)
+      return () => {
+        console.log('test')
+        player?.disconnect();
+        clearInterval(interval);
+      };
     };
   }, []);
 
@@ -239,9 +250,25 @@ function WebPlayback(props: { token: string }): JSX.Element {
     );
   } else {
     return (
-      <>
+      <Modal
+        isOpen={props.isOpen}
+        size={'4xl'}
+        onClose={() => {
+          console.log('test')
+          clearInterval(intervalID);
+          player?.removeListener('ready')
+          player?.removeListener('not_ready')
+          player?.removeListener('player_state_changed')
+          player?.disconnect();
+          props.onClose()
+          }}>
+        <ModalOverlay />
+        <ModalContent>
+          {<ModalHeader>{props.title} </ModalHeader>}
         <div>
-          <div>{/* <Searcher token={token} addSong={addSong} /> */}</div>
+          <div>
+            <Searcher token={props.token} addSong={addSong} />
+          </div>
           <div className='container'>
             <div className='main-wrapper'>
               <img src={currentTrack?.album.images[0].url} className='now-playing__cover' alt='' />
@@ -275,9 +302,13 @@ function WebPlayback(props: { token: string }): JSX.Element {
               </div>
             </div>
           </div>
-          <div>{/* <SongQueue queue={current_queue} token={token} /> */}</div>
+          <div>
+            <SongQueue queue={currentQueue} token={props.token} />
+          </div>
         </div>
-      </>
+        <ModalCloseButton />
+      </ModalContent>
+    </Modal>
     );
   }
 }

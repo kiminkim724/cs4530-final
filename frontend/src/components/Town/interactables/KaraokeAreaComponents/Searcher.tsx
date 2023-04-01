@@ -1,31 +1,32 @@
-import { useState } from 'react';
+///  <reference types="@types/spotify-web-playback-sdk"/>
+import React, { SetStateAction, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, InputGroup, FormControl, Button, Row, Card } from 'react-bootstrap';
 
-function Searcher(props) {
+function Searcher(props: { addSong: (id: string) => void; token: string }) {
   const [searchInput, setSearchInput] = useState('');
-  const [tracks, setTracks] = useState([]);
+  const [tracks, setTracks] = useState<Spotify.Track[]>([]);
 
-  const access_token = props.token;
+  const accessToken = props.token;
 
   const searchTrack = async () => {
     if (searchInput) {
       const songLimit = 8;
-      const tracks = await fetch(
+      const trackResults = await fetch(
         'https://api.spotify.com/v1/search?q=' + searchInput + `&type=track&limit=${songLimit}`,
         {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${access_token}`,
+            'Authorization': `Bearer ${accessToken}`,
           },
         },
       )
         .then(response => response.json())
         .then(data => data.tracks);
 
-      console.log(tracks);
-      setTracks(tracks.items);
+      console.log(trackResults);
+      setTracks(trackResults.items);
     }
   };
 
@@ -37,12 +38,12 @@ function Searcher(props) {
             type='input'
             placeholder='Search By Track Name ...'
             value={searchInput}
-            onKeyPress={event => {
+            onKeyPress={(event: { key: string }) => {
               if (event.key == 'Enter') {
                 searchTrack();
               }
             }}
-            onChange={event => {
+            onChange={(event: { target: { value: SetStateAction<string> } }) => {
               setSearchInput(event.target.value);
             }}
           />
@@ -52,8 +53,7 @@ function Searcher(props) {
             onClick={() => {
               setTracks([]);
               setSearchInput('');
-            }}
-          >
+            }}>
             Clear
           </Button>
         </InputGroup>
@@ -67,7 +67,7 @@ function Searcher(props) {
                 <Card.Title className='text-dark'>{track.name}</Card.Title>
                 <Card.Subtitle className='text-white'>{track.artists[0].name}</Card.Subtitle>
               </Card.Body>
-              <Button className='mb-2' onClick={() => props.addSong(track.id)}>
+              <Button className='mb-2' onClick={() => track.id ? props.addSong(track.id) : console.log('empty track') }>
                 Add to queue
               </Button>
             </Card>
