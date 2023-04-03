@@ -201,21 +201,14 @@ export class TownsController extends Controller {
     }
   }
 
-  private _generateRandomString = (length: number) => {
-    let text = '';
-    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < length; i++) {
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-    return text;
-  };
-
   @Get('{townID}/{karaokeSessionId}/authorize')
   @Response<InvalidParametersError>(400, 'Invalid values specified')
   public async spotifyAuthorize(
     @Path() townID: string,
     @Path() karaokeSessionId: string,
     @Header('X-Session-Token') sessionToken: string,
+    codeChallenge: string,
+    state: string,
     @Request() req: express.Request,
   ): Promise<void> {
     const curTown = this._townsStore.getTownByID(townID);
@@ -231,8 +224,7 @@ export class TownsController extends Controller {
       throw new InvalidParametersError('Invalid karaoke session ID');
     }
 
-    const state = this._generateRandomString(16);
-    const scope = 'user-read-private user-read-email';
+    const scope = 'user-read-private user-read-email streaming';
     const clientId = process.env.CLIENT_ID || null;
     const redirect = process.env.REDIRECT_URI || null;
     const res = (<any>req).res as express.Response;
@@ -248,6 +240,8 @@ export class TownsController extends Controller {
           redirect_uri: redirect,
           // eslint-disable-next-line object-shorthand
           state: state,
+          code_challenge_method: 'S256',
+          code_challenge: codeChallenge,
         })}`,
       );
     }
@@ -259,6 +253,7 @@ export class TownsController extends Controller {
     @Path() townID: string,
     @Path() karaokeSessionId: string,
     @Header('X-Session-Token') sessionToken: string,
+    codeVerifier: string,
     @Request() req: express.Request,
   ): Promise<void> {
     const curTown = this._townsStore.getTownByID(townID);
@@ -289,6 +284,8 @@ export class TownsController extends Controller {
             code: code as string,
             redirect_uri: redirect,
             grant_type: 'authorization_code',
+            client_id: clientId,
+            code_verifier: codeVerifier,
           }),
           {
             headers: {
