@@ -23,6 +23,7 @@ import { Town } from '../../generated/client';
 import useLoginController from '../../hooks/useLoginController';
 import TownController from '../../classes/TownController';
 import useVideoContext from '../VideoCall/VideoFrontend/hooks/useVideoContext/useVideoContext';
+import { exchangeToken, handleSpotifyLogin } from './SpotifyLoginRequest';
 
 export default function TownSelection(): JSX.Element {
   const [userName, setUserName] = useState<string>('');
@@ -35,6 +36,15 @@ export default function TownSelection(): JSX.Element {
   const { connect: videoConnect } = useVideoContext();
 
   const toast = useToast();
+
+  useEffect(() => {
+    const args = new URLSearchParams(window.location.search);
+    const code = args.get('code');
+
+    if (code) {
+      exchangeToken(code);
+    }
+  }, []);
 
   const updateTownListings = useCallback(() => {
     townsService.listTowns().then(towns => {
@@ -165,6 +175,17 @@ export default function TownSelection(): JSX.Element {
     <>
       <form>
         <Stack>
+          <Box>
+            {localStorage.getItem('access-token') ? (
+              <Heading as='h2' size='lg'>
+                Logged into Spotify
+              </Heading>
+            ) : (
+              <Button data-testid='spotifyLogin' onClick={handleSpotifyLogin}>
+                Login to Spotify
+              </Button>
+            )}
+          </Box>
           <Box p='4' borderWidth='1px' borderRadius='lg'>
             <Heading as='h2' size='lg'>
               Select a username

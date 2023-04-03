@@ -14,6 +14,7 @@ import {
   Request,
   Route,
   Tags,
+  Query,
 } from 'tsoa';
 import * as express from 'express';
 import axios from 'axios';
@@ -201,23 +202,31 @@ export class TownsController extends Controller {
     }
   }
 
-  private _generateRandomString = (length: number) => {
-    let text = '';
-    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < length; i++) {
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-    return text;
-  };
-
-  @Get('/auth/authorize')
-  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  // @Get('{townID}/{karaokeSessionId}/authorize')
+  // @Response<InvalidParametersError>(400, 'Invalid values specified')
+  @Get('/authorize')
   public async spotifyAuthorize(
+    // @Path() townID: string,
+    // @Path() karaokeSessionId: string,
+    // @Header('X-Session-Token') sessionToken: string,
+    @Query() codeChallenge: string,
+    @Query() state: string,
     @Request() req: express.Request,
   ): Promise<void> {
+    // const curTown = this._townsStore.getTownByID(townID);
+    // if (!curTown) {
+    //   throw new InvalidParametersError('Invalid town ID');
+    // }
+    // if (!curTown.getPlayerBySessionToken(sessionToken)) {
+    //   throw new InvalidParametersError('Invalid session ID');
+    // }
 
-    const state = this._generateRandomString(16);
-    const scope = 'streaming user-read-private user-read-email';
+    // const karaokeSessionArea = curTown.getInteractable(karaokeSessionId);
+    // if (!karaokeSessionArea || !isPosterSessionArea(karaokeSessionArea)) {
+    //   throw new InvalidParametersError('Invalid karaoke session ID');
+    // }
+
+    const scope = 'user-read-private user-read-email streaming';
     const clientId = process.env.CLIENT_ID || null;
     const redirect = process.env.REDIRECT_URI || null;
     const res = (<any>req).res as express.Response;
@@ -233,16 +242,36 @@ export class TownsController extends Controller {
           redirect_uri: redirect,
           // eslint-disable-next-line object-shorthand
           state: state,
+          code_challenge_method: 'S256',
+          code_challenge: codeChallenge,
         })}`,
       );
     }
   }
 
-  @Get('/auth/callback')
-  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  // @Get('{townID}/{karaokeSessionId}/callback')
+  // @Response<InvalidParametersError>(400, 'Invalid values specified')
+  @Get('/callback')
   public async spotifyCallback(
+    // @Path() townID: string,
+    // @Path() karaokeSessionId: string,
+    // @Header('X-Session-Token') sessionToken: string,
+    @Query() codeVerifier: string,
     @Request() req: express.Request,
   ): Promise<void> {
+    // const curTown = this._townsStore.getTownByID(townID);
+    // if (!curTown) {
+    //   throw new InvalidParametersError('Invalid town ID');
+    // }
+    // if (!curTown.getPlayerBySessionToken(sessionToken)) {
+    //   throw new InvalidParametersError('Invalid session ID');
+    // }
+
+    // const karaokeSessionArea = curTown.getInteractable(karaokeSessionId);
+    // if (!karaokeSessionArea || !isPosterSessionArea(karaokeSessionArea)) {
+    //   throw new InvalidParametersError('Invalid karaoke session ID');
+    // }
+
     const code = req.query.code || null;
     const clientId = process.env.CLIENT_ID || null;
     const clientSecret = process.env.CLIENT_SECRET || null;
@@ -258,6 +287,63 @@ export class TownsController extends Controller {
             code: code as string,
             redirect_uri: redirect,
             grant_type: 'authorization_code',
+            client_id: clientId,
+            code_verifier: codeVerifier,
+          }),
+          {
+            headers: {
+              'Authorization': `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString(
+                'base64',
+              )}`,
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          },
+        )
+        // DO SOMETHING WITH THE RESPONSE LATER
+        .then(response => {
+          if (response.status === 200) {
+            res.send(response.data);
+          } else {
+            res.send(response);
+          }
+        })
+        .catch(error => {
+          res.send(error);
+        });
+    }
+  }
+
+  @Get('{townID}/{karaokeSessionId}/clientCredentials')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async spotifyClientCredentials(
+    @Path() townID: string,
+    @Path() karaokeSessionId: string,
+    @Header('X-Session-Token') sessionToken: string,
+    @Request() req: express.Request,
+  ): Promise<void> {
+    const curTown = this._townsStore.getTownByID(townID);
+    if (!curTown) {
+      throw new InvalidParametersError('Invalid town ID');
+    }
+    if (!curTown.getPlayerBySessionToken(sessionToken)) {
+      throw new InvalidParametersError('Invalid session ID');
+    }
+
+    const karaokeSessionArea = curTown.getInteractable(karaokeSessionId);
+    if (!karaokeSessionArea || !isPosterSessionArea(karaokeSessionArea)) {
+      throw new InvalidParametersError('Invalid karaoke session ID');
+    }
+
+    const clientId = process.env.CLIENT_ID || null;
+    const clientSecret = process.env.CLIENT_SECRET || null;
+    const res = (<any>req).res as express.Response;
+
+    if (clientId && clientSecret) {
+      const getToken = await axios
+        .post(
+          'https://accounts.spotify.com/api/token',
+          new URLSearchParams({
+            grant_type: 'client_credentials',
           }),
           {
             headers: {

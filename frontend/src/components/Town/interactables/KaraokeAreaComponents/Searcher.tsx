@@ -67,7 +67,9 @@ function Searcher(props: { addSong: (id: string) => void; token: string }) {
                 <Card.Title className='text-dark'>{track.name}</Card.Title>
                 <Card.Subtitle className='text-white'>{track.artists[0].name}</Card.Subtitle>
               </Card.Body>
-              <Button className='mb-2' onClick={() => track.id ? props.addSong(track.id) : console.log('empty track') }>
+              <Button
+                className='mb-2'
+                onClick={() => (track.id ? props.addSong(track.id) : console.log('empty track'))}>
                 Add to queue
               </Button>
             </Card>

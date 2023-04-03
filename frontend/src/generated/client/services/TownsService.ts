@@ -195,27 +195,64 @@ export class TownsService {
     }
 
     /**
+     * @param codeChallenge
+     * @param state
      * @returns void
      * @throws ApiError
      */
-    public spotifyAuthorize(): CancelablePromise<void> {
+    public spotifyAuthorize(
+        codeChallenge: string,
+        state: string,
+    ): CancelablePromise<void> {
         return this.httpRequest.request({
             method: 'GET',
-            url: '/towns/auth/authorize',
-            errors: {
-                400: `Invalid values specified`,
+            url: '/towns/authorize',
+            query: {
+                'codeChallenge': codeChallenge,
+                'state': state,
             },
         });
     }
 
     /**
+     * @param codeVerifier
      * @returns void
      * @throws ApiError
      */
-    public spotifyCallback(): CancelablePromise<void> {
+    public spotifyCallback(
+        codeVerifier: string,
+    ): CancelablePromise<void> {
         return this.httpRequest.request({
             method: 'GET',
-            url: '/towns/auth/callback',
+            url: '/towns/callback',
+            query: {
+                'codeVerifier': codeVerifier,
+            },
+        });
+    }
+
+    /**
+     * @param townId
+     * @param karaokeSessionId
+     * @param xSessionToken
+     * @returns void
+     * @throws ApiError
+     */
+    public spotifyClientCredentials(
+        townId: string,
+        karaokeSessionId: string,
+        xSessionToken: string,
+    ): CancelablePromise<void> {
+        return this.httpRequest.request({
+            method: 'GET',
+            url: '/towns/{townID}/{karaokeSessionId}/clientCredentials',
+            path: {
+                'townID': townId,
+                'karaokeSessionId': karaokeSessionId,
+            },
+            headers: {
+                'X-Session-Token': xSessionToken,
+            },
             errors: {
                 400: `Invalid values specified`,
             },

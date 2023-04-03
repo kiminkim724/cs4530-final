@@ -22,7 +22,11 @@ function transferPlaybackHere(deviceID: string, token: string) {
   }).then(() => console.log('transferred'));
 }
 
-const fetchPlus: (url: string, options: RequestInit, retries: number) => Promise<any> = async (
+const fetchPlus: (
+  url: string,
+  options: RequestInit,
+  retries: number,
+) => Promise<void | Response | undefined> = async (
   url: string,
   options: RequestInit,
   retries: number,
@@ -48,12 +52,13 @@ function millisToMinutesAndSeconds(millis: number): string {
   return seconds == 60 ? minutes + 1 + ':00' : minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
 }
 
-
-
-function WebPlayback(props: { isOpen: boolean; onClose: () => void; title?: string; token: string; }): JSX.Element {
-  const [token, setToken] = useState('');
+function WebPlayback(props: {
+  isOpen: boolean;
+  onClose: () => void;
+  title?: string;
+  token: string;
+}): JSX.Element {
   const [isPaused, setPaused] = useState(false);
-  const [isActive, setActive] = useState(false);
   const [player, setPlayer] = useState<Spotify.Player>();
   const [currentTrack, setTrack] = useState<Spotify.Track>();
   const [currentQueue, setQueue] = useState([
@@ -108,7 +113,7 @@ function WebPlayback(props: { isOpen: boolean; onClose: () => void; title?: stri
       },
       3,
     ).then(response => {
-      response.json().then(async (result: Spotify.Track) => {
+      response?.json().then(async (result: Spotify.Track) => {
         setMyTrack(result);
         await fetchPlus(
           `https://api.spotify.com/v1/me/player/play`,
@@ -151,9 +156,6 @@ function WebPlayback(props: { isOpen: boolean; onClose: () => void; title?: stri
   useEffect(() => {}, [currentTime]);
 
   useEffect(() => {}, [intervalID]);
-
-  useEffect(() => {
-  }, [token]);
 
   useEffect(() => {
     /*const getToken = async () => {
@@ -211,13 +213,6 @@ function WebPlayback(props: { isOpen: boolean; onClose: () => void; title?: stri
         } else {
           setPaused(state.paused);
         }
-        tempPlayer.getCurrentState().then(currState => {
-          if (currState) {
-            setActive(true);
-          } else {
-            setActive(false);
-          }
-        });
       });
 
       tempPlayer.connect();
@@ -229,9 +224,9 @@ function WebPlayback(props: { isOpen: boolean; onClose: () => void; title?: stri
           }
         });
       }, 1000);
-      setIntervalID(interval)
+      setIntervalID(interval);
       return () => {
-        console.log('test')
+        console.log('test');
         player?.disconnect();
         clearInterval(interval);
       };
@@ -254,61 +249,65 @@ function WebPlayback(props: { isOpen: boolean; onClose: () => void; title?: stri
         isOpen={props.isOpen}
         size={'4xl'}
         onClose={() => {
-          console.log('test')
+          console.log('test');
           clearInterval(intervalID);
-          player?.removeListener('ready')
-          player?.removeListener('not_ready')
-          player?.removeListener('player_state_changed')
+          player?.removeListener('ready');
+          player?.removeListener('not_ready');
+          player?.removeListener('player_state_changed');
           player?.disconnect();
-          props.onClose()
-          }}>
+          props.onClose();
+        }}>
         <ModalOverlay />
         <ModalContent>
           {<ModalHeader>{props.title} </ModalHeader>}
-        <div>
           <div>
-            <Searcher token={props.token} addSong={addSong} />
-          </div>
-          <div className='container'>
-            <div className='main-wrapper'>
-              <img src={currentTrack?.album.images[0].url} className='now-playing__cover' alt='' />
+            <div>
+              <Searcher token={props.token} addSong={addSong} />
+            </div>
+            <div className='container'>
+              <div className='main-wrapper'>
+                <img
+                  src={currentTrack?.album.images[0].url}
+                  className='now-playing__cover'
+                  alt=''
+                />
 
-              <div className='now-playing__side'>
-                <div className='now-playing__name'>{currentTrack?.name}</div>
-                <div className='now-playing__artist'>{currentTrack?.artists[0].name}</div>
-                <div className='now-playing__artist'>
-                  {currentTrack
-                    ? millisToMinutesAndSeconds(currentTime) +
-                      '/' +
-                      millisToMinutesAndSeconds(currentTrack.duration_ms)
-                    : 'N/A'}
+                <div className='now-playing__side'>
+                  <div className='now-playing__name'>{currentTrack?.name}</div>
+                  <div className='now-playing__artist'>{currentTrack?.artists[0].name}</div>
+                  <div className='now-playing__artist'>
+                    {currentTrack
+                      ? millisToMinutesAndSeconds(currentTime) +
+                        '/' +
+                        millisToMinutesAndSeconds(currentTrack.duration_ms)
+                      : 'N/A'}
+                  </div>
+
+                  <button
+                    className='btn-spotify'
+                    onClick={() => {
+                      player.togglePlay();
+                    }}>
+                    {isPaused ? 'PLAY' : 'PAUSE'}
+                  </button>
+
+                  <button
+                    className='btn-spotify'
+                    onClick={() => {
+                      playNextSong();
+                    }}>
+                    Skip
+                  </button>
                 </div>
-
-                <button
-                  className='btn-spotify'
-                  onClick={() => {
-                    player.togglePlay();
-                  }}>
-                  {isPaused ? 'PLAY' : 'PAUSE'}
-                </button>
-
-                <button
-                  className='btn-spotify'
-                  onClick={() => {
-                    playNextSong();
-                  }}>
-                  Skip
-                </button>
               </div>
             </div>
+            <div>
+              <SongQueue queue={currentQueue} token={props.token} />
+            </div>
           </div>
-          <div>
-            <SongQueue queue={currentQueue} token={props.token} />
-          </div>
-        </div>
-        <ModalCloseButton />
-      </ModalContent>
-    </Modal>
+          <ModalCloseButton />
+        </ModalContent>
+      </Modal>
     );
   }
 }

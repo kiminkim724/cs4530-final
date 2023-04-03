@@ -292,12 +292,14 @@ export function RegisterRoutes(app: express.Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/towns/auth/authorize',
+        app.get('/towns/authorize',
             ...(fetchMiddlewares<RequestHandler>(TownsController)),
             ...(fetchMiddlewares<RequestHandler>(TownsController.prototype.spotifyAuthorize)),
 
             function TownsController_spotifyAuthorize(request: any, response: any, next: any) {
             const args = {
+                    codeChallenge: {"in":"query","name":"codeChallenge","required":true,"dataType":"string"},
+                    state: {"in":"query","name":"state","required":true,"dataType":"string"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
@@ -317,12 +319,13 @@ export function RegisterRoutes(app: express.Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/towns/auth/callback',
+        app.get('/towns/callback',
             ...(fetchMiddlewares<RequestHandler>(TownsController)),
             ...(fetchMiddlewares<RequestHandler>(TownsController.prototype.spotifyCallback)),
 
             function TownsController_spotifyCallback(request: any, response: any, next: any) {
             const args = {
+                    codeVerifier: {"in":"query","name":"codeVerifier","required":true,"dataType":"string"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
@@ -336,6 +339,34 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.spotifyCallback.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/towns/:townID/:karaokeSessionId/clientCredentials',
+            ...(fetchMiddlewares<RequestHandler>(TownsController)),
+            ...(fetchMiddlewares<RequestHandler>(TownsController.prototype.spotifyClientCredentials)),
+
+            function TownsController_spotifyClientCredentials(request: any, response: any, next: any) {
+            const args = {
+                    townID: {"in":"path","name":"townID","required":true,"dataType":"string"},
+                    karaokeSessionId: {"in":"path","name":"karaokeSessionId","required":true,"dataType":"string"},
+                    sessionToken: {"in":"header","name":"X-Session-Token","required":true,"dataType":"string"},
+                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new TownsController();
+
+
+              const promise = controller.spotifyClientCredentials.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
