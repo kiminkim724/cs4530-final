@@ -14,6 +14,7 @@ import {
   Request,
   Route,
   Tags,
+  Query,
 } from 'tsoa';
 import * as express from 'express';
 import axios from 'axios';
@@ -201,28 +202,29 @@ export class TownsController extends Controller {
     }
   }
 
-  @Get('{townID}/{karaokeSessionId}/authorize')
-  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  // @Get('{townID}/{karaokeSessionId}/authorize')
+  // @Response<InvalidParametersError>(400, 'Invalid values specified')
+  @Get('/authorize')
   public async spotifyAuthorize(
-    @Path() townID: string,
-    @Path() karaokeSessionId: string,
-    @Header('X-Session-Token') sessionToken: string,
-    codeChallenge: string,
-    state: string,
+    // @Path() townID: string,
+    // @Path() karaokeSessionId: string,
+    // @Header('X-Session-Token') sessionToken: string,
+    @Query() codeChallenge: string,
+    @Query() state: string,
     @Request() req: express.Request,
   ): Promise<void> {
-    const curTown = this._townsStore.getTownByID(townID);
-    if (!curTown) {
-      throw new InvalidParametersError('Invalid town ID');
-    }
-    if (!curTown.getPlayerBySessionToken(sessionToken)) {
-      throw new InvalidParametersError('Invalid session ID');
-    }
+    // const curTown = this._townsStore.getTownByID(townID);
+    // if (!curTown) {
+    //   throw new InvalidParametersError('Invalid town ID');
+    // }
+    // if (!curTown.getPlayerBySessionToken(sessionToken)) {
+    //   throw new InvalidParametersError('Invalid session ID');
+    // }
 
-    const karaokeSessionArea = curTown.getInteractable(karaokeSessionId);
-    if (!karaokeSessionArea || !isPosterSessionArea(karaokeSessionArea)) {
-      throw new InvalidParametersError('Invalid karaoke session ID');
-    }
+    // const karaokeSessionArea = curTown.getInteractable(karaokeSessionId);
+    // if (!karaokeSessionArea || !isPosterSessionArea(karaokeSessionArea)) {
+    //   throw new InvalidParametersError('Invalid karaoke session ID');
+    // }
 
     const scope = 'user-read-private user-read-email streaming';
     const clientId = process.env.CLIENT_ID || null;
@@ -247,27 +249,28 @@ export class TownsController extends Controller {
     }
   }
 
-  @Get('{townID}/{karaokeSessionId}/callback')
-  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  // @Get('{townID}/{karaokeSessionId}/callback')
+  // @Response<InvalidParametersError>(400, 'Invalid values specified')
+  @Get('/callback')
   public async spotifyCallback(
-    @Path() townID: string,
-    @Path() karaokeSessionId: string,
-    @Header('X-Session-Token') sessionToken: string,
-    codeVerifier: string,
+    // @Path() townID: string,
+    // @Path() karaokeSessionId: string,
+    // @Header('X-Session-Token') sessionToken: string,
+    @Query() codeVerifier: string,
     @Request() req: express.Request,
   ): Promise<void> {
-    const curTown = this._townsStore.getTownByID(townID);
-    if (!curTown) {
-      throw new InvalidParametersError('Invalid town ID');
-    }
-    if (!curTown.getPlayerBySessionToken(sessionToken)) {
-      throw new InvalidParametersError('Invalid session ID');
-    }
+    // const curTown = this._townsStore.getTownByID(townID);
+    // if (!curTown) {
+    //   throw new InvalidParametersError('Invalid town ID');
+    // }
+    // if (!curTown.getPlayerBySessionToken(sessionToken)) {
+    //   throw new InvalidParametersError('Invalid session ID');
+    // }
 
-    const karaokeSessionArea = curTown.getInteractable(karaokeSessionId);
-    if (!karaokeSessionArea || !isPosterSessionArea(karaokeSessionArea)) {
-      throw new InvalidParametersError('Invalid karaoke session ID');
-    }
+    // const karaokeSessionArea = curTown.getInteractable(karaokeSessionId);
+    // if (!karaokeSessionArea || !isPosterSessionArea(karaokeSessionArea)) {
+    //   throw new InvalidParametersError('Invalid karaoke session ID');
+    // }
 
     const code = req.query.code || null;
     const clientId = process.env.CLIENT_ID || null;
