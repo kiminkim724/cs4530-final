@@ -23,7 +23,7 @@ import { Town } from '../../generated/client';
 import useLoginController from '../../hooks/useLoginController';
 import TownController from '../../classes/TownController';
 import useVideoContext from '../VideoCall/VideoFrontend/hooks/useVideoContext/useVideoContext';
-import { exchangeToken, handleSpotifyLogin } from './SpotifyLoginRequest';
+import { exchangeToken, handleSpotifyLogin, refreshToken } from './SpotifyLoginRequest';
 
 export default function TownSelection(): JSX.Element {
   const [userName, setUserName] = useState<string>('');
@@ -40,9 +40,18 @@ export default function TownSelection(): JSX.Element {
   useEffect(() => {
     const args = new URLSearchParams(window.location.search);
     const code = args.get('code');
-
-    if (code) {
-      exchangeToken(code);
+    const tokenExpires = localStorage.getItem('access-token-expired');
+    const refreshTokenString = localStorage.getItem('refresh_token');
+    if (localStorage.getItem('access_token') && tokenExpires) {
+      const tokenExpireTime: number = Date.parse(tokenExpires);
+      if (Math.abs(tokenExpireTime - Date.now()) > 3600 && refreshTokenString) {
+        console.log('refreshing token');
+        refreshToken(refreshTokenString);
+      }
+    } else {
+      if (code) {
+        exchangeToken(code);
+      }
     }
   }, []);
 

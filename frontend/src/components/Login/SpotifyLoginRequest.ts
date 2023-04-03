@@ -51,6 +51,19 @@ export const handleSpotifyLogin = async () => {
   });
 };
 
+function processTokenResponse(data: {
+  access_token: string;
+  expires_in: number;
+  refresh_token: string;
+}) {
+  console.log(data);
+  localStorage.setItem('access-token', data.access_token);
+  localStorage.setItem('access-token-expired', (Date.now() + data.expires_in).toString());
+  localStorage.setItem('refresh-token', data.refresh_token);
+
+  window.history.replaceState(null, '', window.location.pathname);
+}
+
 export async function exchangeToken(code: string) {
   const codeVerifier = localStorage.getItem('code-verifier');
   if (code && CLIENT_ID && codeVerifier) {
@@ -77,9 +90,34 @@ export async function exchangeToken(code: string) {
         return response.json();
       })
       .then(data => {
-        localStorage.setItem('access-token', data.access_token);
-        window.history.replaceState(null, '', window.location.pathname);
+        processTokenResponse(data);
       })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  }
+}
+
+export async function refreshToken(refresh_token: string) {
+  if (CLIENT_ID) {
+    fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+      },
+      body: new URLSearchParams({
+        client_id: CLIENT_ID,
+        grant_type: 'refresh_token',
+        refresh_token: refresh_token,
+      }),
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('HTTP status ' + response.status);
+        }
+        return response.json();
+      })
+      .then(processTokenResponse)
       .catch(error => {
         console.error('Error:', error);
       });
