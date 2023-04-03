@@ -1,12 +1,15 @@
 {
   "compilerOptions": {
+    "paths": {
+      "react": [ "./node_modules/@types/react" ]
+      },
     "target": "es6",
     "lib": [
       "dom",
       "dom.iterable",
       "esnext"
     ],
-	  "types": ["jest", "spotify-web-playback-sdk"],
+	  "types": ["jest"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -27,7 +30,6 @@
   },
   "include": [
     "src",
-    "generated"
-, "../townService/src/town/setupProxy.js"  ],
+    "generated"],
   "references": [{"path": "../shared/"}]
 }
