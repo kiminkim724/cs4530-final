@@ -75,12 +75,62 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Image": {
+        "dataType": "refObject",
+        "properties": {
+            "height": {"dataType":"union","subSchemas":[{"dataType":"double"},{"dataType":"enum","enums":[null]},{"dataType":"undefined"}]},
+            "url": {"dataType":"string","required":true},
+            "size": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]},{"dataType":"undefined"}]},
+            "width": {"dataType":"union","subSchemas":[{"dataType":"double"},{"dataType":"enum","enums":[null]},{"dataType":"undefined"}]},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Album": {
+        "dataType": "refObject",
+        "properties": {
+            "name": {"dataType":"string","required":true},
+            "uri": {"dataType":"string","required":true},
+            "images": {"dataType":"array","array":{"dataType":"refObject","ref":"Image"},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Entity": {
+        "dataType": "refObject",
+        "properties": {
+            "name": {"dataType":"string","required":true},
+            "uri": {"dataType":"string","required":true},
+            "url": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Spotify.Track": {
+        "dataType": "refObject",
+        "properties": {
+            "album": {"ref":"Album","required":true},
+            "artists": {"dataType":"array","array":{"dataType":"refObject","ref":"Entity"},"required":true},
+            "duration_ms": {"dataType":"double","required":true},
+            "id": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
+            "is_playable": {"dataType":"boolean","required":true},
+            "name": {"dataType":"string","required":true},
+            "uid": {"dataType":"string","required":true},
+            "uri": {"dataType":"string","required":true},
+            "media_type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["audio"]},{"dataType":"enum","enums":["video"]}],"required":true},
+            "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["track"]},{"dataType":"enum","enums":["episode"]},{"dataType":"enum","enums":["ad"]}],"required":true},
+            "track_type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["audio"]},{"dataType":"enum","enums":["video"]}],"required":true},
+            "linked_from": {"dataType":"nestedObjectLiteral","nestedProperties":{"id":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"uri":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true}},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "KaraokeArea": {
         "dataType": "refObject",
         "properties": {
             "id": {"dataType":"string","required":true},
             "title": {"dataType":"string"},
-            "currentSong": {"dataType":"string"},
+            "currentSong": {"ref":"Spotify.Track"},
             "songQueue": {"dataType":"array","array":{"dataType":"string"},"required":true},
             "isPlaying": {"dataType":"boolean","required":true},
             "elapsedTimeSec": {"dataType":"double","required":true},

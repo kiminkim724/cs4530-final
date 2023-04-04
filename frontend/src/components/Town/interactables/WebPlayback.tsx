@@ -1,8 +1,11 @@
-///  <reference types="@types/spotify-web-playback-sdk"/>
 import { Modal, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/react';
 import React, { useState, useEffect, useRef } from 'react';
+import KaraokeAreaController from '../../../classes/KaraokeAreaController';
+import TownController from '../../../classes/TownController';
 import Searcher from './KaraokeAreaComponents/Searcher';
 import SongQueue from './KaraokeAreaComponents/songQueue';
+
+const ALLOWED_DRIFT = 1;
 
 function transferPlaybackHere(deviceID: string, token: string) {
   // https://beta.developer.spotify.com/documentation/web-api/reference/player/transfer-a-users-playback/
@@ -31,20 +34,20 @@ const fetchPlus: (
   options: RequestInit,
   retries: number,
 ) =>
-  fetch(url, options)
-    .then(res => {
-      if (res.ok) {
-        return res;
-      }
-      if (retries > 0) {
-        console.log('retrying');
-        setTimeout(() => {
-          return fetchPlus(url, options, retries - 1);
-        }, 1000);
-      }
-      //throw new Error(res.status)
-    })
-    .catch(error => console.error(error.message));
+    fetch(url, options)
+      .then(res => {
+        if (res.ok) {
+          return res;
+        }
+        if (retries > 0) {
+          console.log('retrying');
+          setTimeout(() => {
+            return fetchPlus(url, options, retries - 1);
+          }, 1000);
+        }
+        //throw new Error(res.status)
+      })
+      .catch(error => console.error(error.message));
 
 function millisToMinutesAndSeconds(millis: number): string {
   const minutes = Math.floor(millis / 60000);
@@ -57,30 +60,28 @@ function WebPlayback(props: {
   onClose: () => void;
   title?: string;
   token: string;
+  controller: KaraokeAreaController;
+  townController: TownController;
 }): JSX.Element {
-  const [isPaused, setPaused] = useState(false);
+  const [isPlaying, setPlaying] = useState<boolean>(props.controller.isPlaying);
   const [player, setPlayer] = useState<Spotify.Player>();
-  const [currentTrack, setTrack] = useState<Spotify.Track>();
-  const [currentQueue, setQueue] = useState([
+  const [currentTrack, setTrack] = useState<Spotify.Track | undefined>(props.controller.currentSong);
+  /*const [currentQueue, setQueue] = useState([
     '7ouMYWpwJ422jRcDASZB7P',
     '4VqPOruhp5EdPBeR92t6lQ',
     '2takcwOaAZWiXQijPHIx7B',
-  ]);
+  ]);*/
+  const [currentTime, setTime] = useState<number>(0);
+  const [currentQueue, setQueue] = useState<string[]>(props.controller.songQueue);
   const [deviceID, setDeviceID] = useState('');
-  const [currentTime, setTime] = useState(0);
   const [intervalID, setIntervalID] = useState<NodeJS.Timer>();
+
   const timeRef = useRef(currentTime);
-  const queueRef = useRef(currentQueue);
   const trackRef = useRef(currentTrack);
 
   const setMyTrack = (data: Spotify.Track) => {
     trackRef.current = data;
     setTrack(data);
-  };
-
-  const setMyQueue = (data: string[]) => {
-    queueRef.current = data;
-    setQueue(data);
   };
 
   const setMyTime = (data: number) => {
@@ -89,11 +90,12 @@ function WebPlayback(props: {
   };
 
   const addSong = (id: string) => {
-    if (id && currentQueue.find(song => song === id)) {
+    if (id && props.controller.songQueue.find(song => song === id)) {
       console.log('song already in queue');
     } else {
       console.log('adding song to queue');
-      setMyQueue(queueRef.current.concat(id));
+      props.controller.songQueue = props.controller.songQueue.concat(id);
+      props.townController.emitKaraokeAreaUpdate(props.controller);
     }
   };
 
@@ -126,7 +128,7 @@ function WebPlayback(props: {
             body: JSON.stringify({
               device_id: deviceID,
               uris: [result.uri],
-              position_ms: 0,
+              position_ms: props.controller.elapsedTimeSec * 1000,
             }),
           },
           3,
@@ -136,11 +138,12 @@ function WebPlayback(props: {
   };
 
   const playNextSong = async () => {
-    console.log(queueRef.current);
-    if (currentQueue.length > 0) {
-      const id = queueRef.current[0];
+    if (props.controller.songQueue.length > 0) {
+      const id = props.controller.songQueue[0];
       console.log(id);
-      setMyQueue(queueRef.current.splice(1));
+      props.controller.songQueue = props.controller.songQueue.splice(1);
+      props.controller.elapsedTimeSec = 0;
+      props.townController.emitKaraokeAreaUpdate(props.controller);
       playSong(id);
     } else {
       console.log('No songs in queue');
@@ -151,18 +154,34 @@ function WebPlayback(props: {
     console.log(currentQueue);
   }, [currentQueue]);
 
-  useEffect(() => {}, [currentTrack]);
+  useEffect(() => {
+    const progressListener = (newTime: number) => {
+      player?.getCurrentState().then(state => {
+        if (state) {
+          const currentTime = state.position;
+          if (currentTime !== undefined && Math.abs(currentTime - newTime) > ALLOWED_DRIFT) {
+            player.seek(newTime * 1000);
+          }
+        }
+      });
+    };
+    props.controller.addListener('progressChange', progressListener);
+    props.controller.addListener('playbackChange', setPlaying);
+    props.controller.addListener('songChange', setTrack);
+    props.controller.addListener('songQueueChange', setQueue);
+    return () => {
+      props.controller.removeListener('playbackChange', setPlaying);
+      props.controller.removeListener('progressChange', progressListener);
+      props.controller.removeListener('songQueueChange', setQueue);
+      props.controller.removeListener('songChange', setTrack);
+    };
+  }, [props.controller]);
 
-  useEffect(() => {}, [currentTime]);
+  useEffect(() => { }, [currentTrack, currentTime]);
 
-  useEffect(() => {}, [intervalID]);
+  useEffect(() => { }, [intervalID]);
 
   useEffect(() => {
-    /*const getToken = async () => {
-          const data = await fetch('/auth/gen').then(result => result.json().then(genToken => genToken));
-          setToken(data.gen_token);
-        };
-        getToken();*/
     const script = document.createElement('script');
     script.src = 'https://sdk.scdn.co/spotify-player.js';
     script.async = true;
@@ -194,24 +213,25 @@ function WebPlayback(props: {
           return;
         }
 
-        if (trackRef.current && state.track_window.current_track.id != trackRef.current.id) {
-          if (trackRef.current.id) {
-            playSong(trackRef.current.id);
+        if (props.controller.currentSong && state.track_window.current_track.id != props.controller.currentSong.id) {
+          if (props.controller.currentSong.id) {
+            playSong(props.controller.currentSong.id);
           }
         } else {
           setMyTrack(state.track_window.current_track);
         }
 
         if (state.position === state.duration) {
-          console.log(queueRef.current);
-          if (queueRef.current.length > 0) {
+          if (currentQueue.length > 0) {
             console.log('Track ended');
             playNextSong();
           } else {
             tempPlayer.pause();
+            props.controller.isPlaying = false;
+            props.townController.emitKaraokeAreaUpdate(props.controller);
           }
         } else {
-          setPaused(state.paused);
+          setPlaying(!state.paused);
         }
       });
 
@@ -220,7 +240,11 @@ function WebPlayback(props: {
       const interval = setInterval(() => {
         tempPlayer.getCurrentState().then(state => {
           if (state) {
-            setMyTime(state.position);
+            if (state.position != 0 && state.position / 1000 != props.controller.elapsedTimeSec) {
+              setMyTime(state.position);
+              props.controller.elapsedTimeSec = Math.floor(state.position / 1000);
+              props.townController.emitKaraokeAreaUpdate(props.controller);
+            }
           }
         });
       }, 1000);
@@ -279,8 +303,8 @@ function WebPlayback(props: {
                   <div className='now-playing__artist'>
                     {currentTrack
                       ? millisToMinutesAndSeconds(currentTime) +
-                        '/' +
-                        millisToMinutesAndSeconds(currentTrack.duration_ms)
+                      '/' +
+                      millisToMinutesAndSeconds(currentTrack.duration_ms)
                       : 'N/A'}
                   </div>
 
@@ -288,14 +312,18 @@ function WebPlayback(props: {
                     className='btn-spotify'
                     onClick={() => {
                       player.togglePlay();
+                      props.controller.isPlaying = !isPlaying;
+                      props.townController.emitKaraokeAreaUpdate(props.controller);
                     }}>
-                    {isPaused ? 'PLAY' : 'PAUSE'}
+                    {!isPlaying ? 'PLAY' : 'PAUSE'}
                   </button>
 
                   <button
                     className='btn-spotify'
                     onClick={() => {
                       playNextSong();
+                      props.controller.elapsedTimeSec = 0;
+                      props.townController.emitKaraokeAreaUpdate(props.controller);
                     }}>
                     Skip
                   </button>

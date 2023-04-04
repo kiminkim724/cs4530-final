@@ -569,6 +569,8 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    * @param newArea
    */
   async createKaraokeArea(newArea: KaraokeAreaModel) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     await this._townsService.createKaraokeArea(this.townID, this.sessionToken, newArea);
   }
 

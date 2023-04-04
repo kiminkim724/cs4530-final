@@ -73,7 +73,7 @@ export interface ViewingArea {
 export interface KaraokeArea {
   id: string;
   title?: string;
-  currentSong?: string;
+  currentSong?: Spotify.Track;
   songQueue: string[];
   isPlaying: boolean;
   elapsedTimeSec: number;

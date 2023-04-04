@@ -41,6 +41,8 @@ export function KaraokeRoom({
         }}
         title={title}
         token={token}
+        controller={controller}
+        townController={townController}
       />
     );
   } else {

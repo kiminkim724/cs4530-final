@@ -1,3 +1,4 @@
+///  <reference types="@types/spotify-web-playback-sdk"/>
 import { ITiledMapObject } from '@jonbell/tiled-map-type-guard';
 import Player from '../lib/Player';
 import {
@@ -8,7 +9,7 @@ import {
 import InteractableArea from './InteractableArea';
 
 export default class KaraokeArea extends InteractableArea {
-  private _currentSong?: string;
+  private _currentSong?: Spotify.Track;
 
   private _title?: string;
 

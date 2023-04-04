@@ -23,7 +23,7 @@ export type KaraokeAreaEvents = {
    * Listeners are passed the new song, which is either a string (the Spotify URI), or
    * the value `undefined` to indicate that there is no song set.
    */
-  songChange: (currentSong: string | undefined) => void;
+  songChange: (currentSong: Spotify.Track | undefined) => void;
 
   /**
    * A karaokeTitleChange event indicates that the title selected for this karaoke area has changed.
@@ -84,7 +84,7 @@ export default class KaraokeAreaController extends (EventEmitter as new () => Ty
    *
    * Changing this value will emit a 'songChange' event to listeners
    */
-  public set currentSong(song: string | undefined) {
+  public set currentSong(song: Spotify.Track | undefined) {
     if (this._model.currentSong !== this.currentSong) {
       this._model.currentSong = song;
       this.emit('songChange', song);

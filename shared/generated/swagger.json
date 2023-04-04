@@ -149,6 +149,163 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"Image": {
+				"properties": {
+					"height": {
+						"type": "number",
+						"format": "double",
+						"nullable": true
+					},
+					"url": {
+						"type": "string"
+					},
+					"size": {
+						"type": "string",
+						"nullable": true
+					},
+					"width": {
+						"type": "number",
+						"format": "double",
+						"nullable": true
+					}
+				},
+				"required": [
+					"url"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Album": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"uri": {
+						"type": "string"
+					},
+					"images": {
+						"items": {
+							"$ref": "#/components/schemas/Image"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"name",
+					"uri",
+					"images"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Entity": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"uri": {
+						"type": "string"
+					},
+					"url": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"name",
+					"uri",
+					"url"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Spotify.Track": {
+				"properties": {
+					"album": {
+						"$ref": "#/components/schemas/Album"
+					},
+					"artists": {
+						"items": {
+							"$ref": "#/components/schemas/Entity"
+						},
+						"type": "array"
+					},
+					"duration_ms": {
+						"type": "number",
+						"format": "double"
+					},
+					"id": {
+						"type": "string",
+						"nullable": true
+					},
+					"is_playable": {
+						"type": "boolean"
+					},
+					"name": {
+						"type": "string"
+					},
+					"uid": {
+						"type": "string"
+					},
+					"uri": {
+						"type": "string"
+					},
+					"media_type": {
+						"type": "string",
+						"enum": [
+							"audio",
+							"video"
+						]
+					},
+					"type": {
+						"type": "string",
+						"enum": [
+							"track",
+							"episode",
+							"ad"
+						]
+					},
+					"track_type": {
+						"type": "string",
+						"enum": [
+							"audio",
+							"video"
+						]
+					},
+					"linked_from": {
+						"properties": {
+							"id": {
+								"type": "string",
+								"nullable": true
+							},
+							"uri": {
+								"type": "string",
+								"nullable": true
+							}
+						},
+						"required": [
+							"id",
+							"uri"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"album",
+					"artists",
+					"duration_ms",
+					"id",
+					"is_playable",
+					"name",
+					"uid",
+					"uri",
+					"media_type",
+					"type",
+					"track_type",
+					"linked_from"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"KaraokeArea": {
 				"properties": {
 					"id": {
@@ -158,7 +315,7 @@
 						"type": "string"
 					},
 					"currentSong": {
-						"type": "string"
+						"$ref": "#/components/schemas/Spotify.Track"
 					},
 					"songQueue": {
 						"items": {
