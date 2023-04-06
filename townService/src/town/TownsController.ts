@@ -1,4 +1,5 @@
 import assert from 'assert';
+import dotenv from 'dotenv';
 import {
   Body,
   Controller,
@@ -10,10 +11,13 @@ import {
   Path,
   Post,
   Response,
+  Request,
   Route,
   Tags,
+  Query,
 } from 'tsoa';
-
+import * as express from 'express';
+import axios from 'axios';
 import { Town, TownCreateParams, TownCreateResponse } from '../api/Model';
 import InvalidParametersError from '../lib/InvalidParametersError';
 import CoveyTownsStore from '../lib/TownsStore';
@@ -27,6 +31,8 @@ import {
 } from '../types/CoveyTownSocket';
 import PosterSessionAreaReal from './PosterSessionArea';
 import { isPosterSessionArea } from '../TestUtils';
+
+dotenv.config();
 
 /**
  * This is the town route
