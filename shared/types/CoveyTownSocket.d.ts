@@ -17,7 +17,7 @@ export type TownJoinResponse = {
   interactables: Interactable[];
 }
 
-export type Interactable = ViewingArea | ConversationArea | PosterSessionArea;
+export type Interactable = ViewingArea | ConversationArea | PosterSessionArea | KaraokeArea;
 
 export type TownSettingsUpdate = {
   friendlyName?: string;
@@ -66,6 +66,15 @@ export interface BoundingBox {
 export interface ViewingArea {
   id: string;
   video?: string;
+  isPlaying: boolean;
+  elapsedTimeSec: number;
+}
+
+export interface KaraokeArea {
+  id: string;
+  title?: string;
+  currentSong?: string;
+  songQueue: string[];
   isPlaying: boolean;
   elapsedTimeSec: number;
 }

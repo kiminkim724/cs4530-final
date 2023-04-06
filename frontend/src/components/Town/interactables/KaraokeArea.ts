@@ -1,17 +1,17 @@
 import Interactable, { KnownInteractableTypes } from '../Interactable';
 
-export default class ViewingArea extends Interactable {
+export default class KaraokeArea extends Interactable {
   private _labelText?: Phaser.GameObjects.Text;
 
-  private _defaultVideoURL?: string;
+  private _defaultTitle?: string;
 
   private _isInteracting = false;
 
-  public get defaultVideoURL() {
-    if (!this._defaultVideoURL) {
-      return 'No URL found';
+  public get defaultTitle() {
+    if (!this._defaultTitle) {
+      return 'beep boop';
     }
-    return this._defaultVideoURL;
+    return this._defaultTitle;
   }
 
   addedToScene() {
@@ -19,15 +19,15 @@ export default class ViewingArea extends Interactable {
     this.setTintFill();
     this.setAlpha(0.3);
 
-    this._defaultVideoURL = this.getData('video');
+    this._defaultTitle = this.getData('title');
     this._labelText = this.scene.add.text(
       this.x - this.displayWidth / 2,
       this.y - this.displayHeight / 2,
-      `Press space to watch the ${this.name} video`,
-      { color: '#FFFFFF', backgroundColor: '#000000' }, // this changes the color of the text
+      `Press space to listen to ${this.name}'s song`,
+      { color: '#FFFFFF', backgroundColor: '#7307fc' },
     );
     this._labelText.setVisible(false);
-    this.townController.getViewingAreaController(this);
+    this.townController.getKaraokeAreaController(this); // write this in TownController
     this.setDepth(-1);
   }
 
@@ -55,6 +55,6 @@ export default class ViewingArea extends Interactable {
   }
 
   getType(): KnownInteractableTypes {
-    return 'viewingArea';
+    return 'karaokeArea';
   }
 }

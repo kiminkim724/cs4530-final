@@ -7,6 +7,7 @@ import TypedEmitter from 'typed-emitter';
 import Interactable from '../components/Town/Interactable';
 import ViewingArea from '../components/Town/interactables/ViewingArea';
 import PosterSesssionArea from '../components/Town/interactables/PosterSessionArea';
+import KaraokeArea from '../components/Town/interactables/KaraokeArea';
 import { LoginController } from '../contexts/LoginControllerContext';
 import { TownsService, TownsServiceClient } from '../generated/client';
 import useTownController from '../hooks/useTownController';
@@ -17,12 +18,19 @@ import {
   TownSettingsUpdate,
   ViewingArea as ViewingAreaModel,
   PosterSessionArea as PosterSessionAreaModel,
+  KaraokeArea as KaraokeAreaModel,
 } from '../types/CoveyTownSocket';
-import { isConversationArea, isViewingArea, isPosterSessionArea } from '../types/TypeUtils';
+import {
+  isConversationArea,
+  isViewingArea,
+  isPosterSessionArea,
+  isKaraokeArea,
+} from '../types/TypeUtils';
 import ConversationAreaController from './ConversationAreaController';
 import PlayerController from './PlayerController';
 import ViewingAreaController from './ViewingAreaController';
 import PosterSessionAreaController from './PosterSessionAreaController';
+import KaraokeAreaController from './KaraokeAreaController';
 
 const CALCULATE_NEARBY_PLAYERS_DELAY = 300;
 
@@ -77,6 +85,11 @@ export type TownEvents = {
    * the town controller's record of poster session areas.
    */
   posterSessionAreasChanged: (newPosterSessionAreas: PosterSessionAreaController[]) => void;
+  /**
+   * An event that indicates that the set of poster session areas has changed. This event is emitted after updating
+   * the town controller's record of poster session areas.
+   */
+  karaokeAreasChanged: (newKaraokeAreas: KaraokeAreaController[]) => void;
   /**
    * An event that indicates that a new chat message has been received, which is the parameter passed to the listener
    */
@@ -135,7 +148,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   private _playersInternal: PlayerController[] = [];
 
   /**
-   * The current list of conversation areas in the twon. Adding or removing conversation areas might
+   * The current list of conversation areas in the town. Adding or removing conversation areas might
    * replace the array with a new one; clients should take note not to retain stale references.
    */
   private _conversationAreasInternal: ConversationAreaController[] = [];
@@ -199,6 +212,8 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   private _viewingAreas: ViewingAreaController[] = [];
 
   private _posterSessionAreas: PosterSessionAreaController[] = [];
+
+  private _karaokeAreas: KaraokeAreaController[] = [];
 
   public constructor({ userName, townID, loginController }: ConnectionProperties) {
     super();
@@ -328,6 +343,15 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     this.emit('posterSessionAreasChanged', newPosterSessionAreas);
   }
 
+  public get karaokeAreas() {
+    return this._karaokeAreas;
+  }
+
+  public set karaokeAreas(newKaraokeAreas: KaraokeAreaController[]) {
+    this._karaokeAreas = newKaraokeAreas;
+    this.emit('karaokeAreasChanged', newKaraokeAreas);
+  }
+
   /**
    * Begin interacting with an interactable object. Emits an event to all listeners.
    * @param interactedObj
@@ -451,6 +475,11 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
         if (relArea) {
           relArea.updateFrom(interactable);
         }
+      } else if (isKaraokeArea(interactable)) {
+        const relArea = this.karaokeAreas.find(area => area.id == interactable.id);
+        if (relArea) {
+          relArea.updateFrom(interactable);
+        }
       }
     });
   }
@@ -533,6 +562,17 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   }
 
   /**
+   * Create a new viewing area, sending the request to the townService. Throws an error if the request
+   * is not successful. Does not immediately update local state about the new viewing area - it will be
+   * updated once the townService creates the area and emits an interactableUpdate
+   *
+   * @param newArea
+   */
+  async createKaraokeArea(newArea: KaraokeAreaModel) {
+    await this._townsService.createKaraokeArea(this.townID, this.sessionToken, newArea);
+  }
+
+  /**
    * Create a new poster session area, sending the request to the townService. Throws an error if the request
    * is not successful. Does not immediately update local state about the new poster session area - it will be
    * updated once the townService creates the area and emits an interactableUpdate
@@ -578,6 +618,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
         this._conversationAreas = [];
         this._viewingAreas = [];
         this._posterSessionAreas = [];
+        this._karaokeAreas = [];
         initialData.interactables.forEach(eachInteractable => {
           if (isConversationArea(eachInteractable)) {
             this._conversationAreasInternal.push(
@@ -590,6 +631,8 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
             this._viewingAreas.push(new ViewingAreaController(eachInteractable));
           } else if (isPosterSessionArea(eachInteractable)) {
             this._posterSessionAreas.push(new PosterSessionAreaController(eachInteractable));
+          } else if (isKaraokeArea(eachInteractable)) {
+            this._karaokeAreas.push(new KaraokeAreaController(eachInteractable));
           }
         });
         this._userID = initialData.userID;
@@ -628,6 +671,31 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   }
 
   /**
+   * Retrieve the karaoke area controller that corresponds to a karaokeAreaModel, creating one if necessary
+   *
+   * @param karaokeArea
+   * @returns
+   */
+  public getKaraokeAreaController(karaokeArea: KaraokeArea): KaraokeAreaController {
+    const existingController = this._karaokeAreas.find(
+      eachExistingArea => eachExistingArea.id === karaokeArea.name,
+    );
+    if (existingController) {
+      return existingController;
+    } else {
+      const newController = new KaraokeAreaController({
+        id: karaokeArea.name,
+        title: karaokeArea.defaultTitle,
+        songQueue: [],
+        isPlaying: false,
+        elapsedTimeSec: 0,
+      });
+      this._karaokeAreas.push(newController);
+      return newController;
+    }
+  }
+
+  /**
    * Retrieve the poster session area controller that corresponds to a posterSessionAreaModel, creating one if necessary
    *
    * @param posterSessionArea
@@ -660,6 +728,15 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    */
   public emitViewingAreaUpdate(viewingArea: ViewingAreaController) {
     this._socket.emit('interactableUpdate', viewingArea.viewingAreaModel());
+  }
+
+  /**
+   * Emit a karaoke area update to the townService
+   * @param karaokeArea The Karaoke Area Controller that is updated and should be emitted
+   *    with the event
+   */
+  public emitKaraokeAreaUpdate(karaokeArea: KaraokeAreaController) {
+    this._socket.emit('interactableUpdate', karaokeArea.KaraokeAreaModel());
   }
 
   /**
@@ -831,13 +908,33 @@ export function useViewingAreaController(viewingAreaID: string): ViewingAreaCont
 }
 
 /**
+ * A react hook to retrieve a karaoke area controller.
+ *
+ * This function will throw an error if the karaoke area controller does not exist.
+ *
+ * This hook relies on the TownControllerContext.
+ *
+ * @param karaokeAreaID The ID of the karaoke area to retrieve the controller for
+ *
+ * @throws Error if there is no karaoke area controller matching the specifeid ID
+ */
+export function useKaraokeAreaController(karaokeAreaID: string): KaraokeAreaController {
+  const townController = useTownController();
+  const ret = townController.karaokeAreas.find(eachArea => eachArea.id === karaokeAreaID);
+  if (!ret) {
+    throw new Error(`Unable to locate karaoke area id ${karaokeAreaID}`);
+  }
+  return ret;
+}
+
+/**
  * A react hook to retrieve a poster session area controller.
  *
  * This function will throw an error if the poster session area controller does not exist.
  *
  * This hook relies on the TownControllerContext.
  *
- * @param posterSessionAreaID The ID of the viewing area to retrieve the controller for
+ * @param posterSessionAreaID The ID of the poster session area to retrieve the controller for
  *
  * @throws Error if there is no poster session area controller matching the specifeid ID
  */
