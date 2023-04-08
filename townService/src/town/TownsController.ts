@@ -30,7 +30,9 @@ import {
   KaraokeArea,
 } from '../types/CoveyTownSocket';
 import PosterSessionAreaReal from './PosterSessionArea';
-import { isPosterSessionArea } from '../TestUtils';
+import { isKaraokeArea, isPosterSessionArea } from '../TestUtils';
+import KaraokeDao from '../daos/KaraokeDao';
+import SongSchema from '../daos/SongSchema';
 
 dotenv.config();
 
@@ -202,6 +204,83 @@ export class TownsController extends Controller {
     }
   }
 
+  /**
+   * Updates the current song rating, or add a rating to an unrated song
+   *
+   * @param townID ID of the town in which to update the karaoke area image contents
+   * @param karaokeAreaId interactable ID of the karaoke
+   * @param sessionToken session token of the player making the request, must
+   *        match the session token returned when the player joined the town
+   *
+   * @throws InvalidParametersError if the session token is not valid, or if the
+   *          karaoke session specified does not exist
+   */
+  @Patch('{townID}/{karaokeAreaId}/songRating')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async updateSongRating(
+    @Path() townID: string,
+    @Path() karaokeAreaId: string,
+    @Query() songID: string,
+    @Query() rating: 1 | 2 | 3 | 4 | 5,
+    @Header('X-Session-Token') sessionToken: string,
+  ): Promise<void> {
+    const curTown = this._townsStore.getTownByID(townID);
+    if (!curTown) {
+      throw new InvalidParametersError('Invalid town ID');
+    }
+    if (!curTown.getPlayerBySessionToken(sessionToken)) {
+      throw new InvalidParametersError('Invalid session ID');
+    }
+    const karaokeArea = curTown.getInteractable(karaokeAreaId);
+    if (!karaokeArea || !isKaraokeArea(karaokeArea)) {
+      throw new InvalidParametersError('Invalid poster session ID');
+    }
+    const karaokeDao = new KaraokeDao();
+    const success = karaokeDao.addRatingToSong(songID, rating);
+    if (!success) {
+      throw new Error('Fail to add/update rating to song');
+    }
+  }
+
+  /**
+   * Gets the song information of a given karaoke area in a given town, based on the song id
+   *
+   * @param townID ID of the town in which to get the karaoke area song information
+   * @param karaokeAreaId interactable ID of the karaoke area
+   * @param sessionToken session token of the player making the request, must
+   *        match the session token returned when the player joined the town
+   *
+   * @throws InvalidParametersError if the session token is not valid, or if the
+   *          karaoke area specified does not exist
+   */
+  @Get('{townID}/{karaokeAreaId}/songInfo')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async getSongInfo(
+    @Path() townID: string,
+    @Path() karaokeAreaId: string,
+    @Query() songID: string,
+    @Header('X-Session-Token') sessionToken: string,
+  ): Promise<SongSchema | undefined> {
+    const curTown = this._townsStore.getTownByID(townID);
+    if (!curTown) {
+      throw new InvalidParametersError('Invalid town ID');
+    }
+    if (!curTown.getPlayerBySessionToken(sessionToken)) {
+      throw new InvalidParametersError('Invalid session ID');
+    }
+    const karaokeArea = curTown.getInteractable(karaokeAreaId);
+    if (!karaokeArea || !isKaraokeArea(karaokeArea)) {
+      throw new InvalidParametersError('Invalid poster session ID');
+    }
+    const karaokeDao = new KaraokeDao();
+    const success = karaokeDao.getSongInfo(songID);
+    if (!success) {
+      throw new Error('Fail to get song info');
+    } else {
+      return success;
+    }
+  }
+
   // @Get('{townID}/{karaokeSessionId}/authorize')
   // @Response<InvalidParametersError>(400, 'Invalid values specified')
   @Get('/authorize')
@@ -313,11 +392,11 @@ export class TownsController extends Controller {
     }
   }
 
-  @Get('{townID}/{karaokeSessionId}/clientCredentials')
+  @Get('{townID}/{karaokeAreaId}/clientCredentials')
   @Response<InvalidParametersError>(400, 'Invalid values specified')
   public async spotifyClientCredentials(
     @Path() townID: string,
-    @Path() karaokeSessionId: string,
+    @Path() karaokeAreaId: string,
     @Header('X-Session-Token') sessionToken: string,
     @Request() req: express.Request,
   ): Promise<void> {
@@ -329,8 +408,8 @@ export class TownsController extends Controller {
       throw new InvalidParametersError('Invalid session ID');
     }
 
-    const karaokeSessionArea = curTown.getInteractable(karaokeSessionId);
-    if (!karaokeSessionArea || !isPosterSessionArea(karaokeSessionArea)) {
+    const karaokeArea = curTown.getInteractable(karaokeAreaId);
+    if (!karaokeArea || !isPosterSessionArea(karaokeArea)) {
       throw new InvalidParametersError('Invalid karaoke session ID');
     }
 

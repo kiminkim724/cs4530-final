@@ -233,22 +233,22 @@ export class TownsService {
 
     /**
      * @param townId
-     * @param karaokeSessionId
+     * @param karaokeAreaId
      * @param xSessionToken
      * @returns void
      * @throws ApiError
      */
     public spotifyClientCredentials(
         townId: string,
-        karaokeSessionId: string,
+        karaokeAreaId: string,
         xSessionToken: string,
     ): CancelablePromise<void> {
         return this.httpRequest.request({
             method: 'GET',
-            url: '/towns/{townID}/{karaokeSessionId}/clientCredentials',
+            url: '/towns/{townID}/{karaokeAreaId}/clientCredentials',
             path: {
                 'townID': townId,
-                'karaokeSessionId': karaokeSessionId,
+                'karaokeAreaId': karaokeAreaId,
             },
             headers: {
                 'X-Session-Token': xSessionToken,
@@ -258,6 +258,79 @@ export class TownsService {
             },
         });
     }
+
+    /**
+     * Updates the current song rating, or add a rating to an unrated song
+     * @param townId ID of the town in which to update the karaoke area songs
+     * @param karaokeAreaId interactable ID of the karaoke area
+     * @param xSessionToken session token of the player making the request, must
+     *      * match the session token returned when the player joined the town
+     * @param songID selected song for information extraction
+     * @returns string Ok
+     * @throws ApiError
+     */
+        public updateSongRating(
+            townId: string,
+            karaokeAreaId: string,
+            xSessionToken: string,
+            songID: string,
+            rating: 1 | 2 | 3 | 4 | 5,
+        ): CancelablePromise<void> {
+            return this.httpRequest.request({
+                method: 'PATCH',
+                url: '/towns/{townID}/{karaokeAreaId}/songRating',
+                path: {
+                    'townID': townId,
+                    'posterSessionId': karaokeAreaId,
+                },
+                query: {
+                    'songID' : songID,
+                    'rating' : rating,
+                },
+                headers: {
+                    'X-Session-Token': xSessionToken,
+                },
+                errors: {
+                    400: `Invalid values specified`,
+                },
+            });
+        }
+
+    /**
+     * Gets the song information of a given karaoke area in a given town, based on the song id
+     * @param townId ID of the town in which to get the karaoke area songs
+     * @param karaokeAreaId interactable ID of the karaoke area
+     * @param xSessionToken session token of the player making the request, must
+     *      * match the session token returned when the player joined the town
+     * @param songID selected song for information extraction
+     * @returns void
+     * @throws ApiError
+     */
+        public getSongInfo(
+            townId: string,
+            karaokeAreaId: string,
+            xSessionToken: string,
+            songID: string,
+        ): CancelablePromise<SongSchema> {
+            return this.httpRequest.request({
+                method: 'PATCH',
+                url: '/towns/{townID}/{karaokeAreaId}/songInfo',
+                path: {
+                    'townID': townId,
+                    'posterSessionId': karaokeAreaId,
+                },
+                query: {
+                    'songID' : songID,
+                },
+                headers: {
+                    'X-Session-Token': xSessionToken,
+                },
+                errors: {
+                    400: `Invalid values specified`,
+                },
+            });
+        }
+    
 
     /**
      * Creates a poster session area in a given town

@@ -781,6 +781,37 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   }
 
   /**
+   * Update the song rating or add new rating for unrated song (specified via karaoke area controller)
+   * @param karaokeArea the poster session area controller
+   * @returns a promise wrapping the new number of stars the poster has
+   */
+  public async updateKaraokeAreaSongRating(
+    karaokeArea: KaraokeAreaController,
+    songID: string,
+    rating: 1 | 2 | 3 | 4 | 5,
+  ): Promise<void> {
+    return this._townsService.updateSongRating(
+      this.townID,
+      karaokeArea.id,
+      this.sessionToken,
+      songID,
+      rating,
+    );
+  }
+
+  /**
+   *  Gets the song information of a given karaoke area in a given town, based on the song id (specified via karaoke area controller)
+   * @param karaokeArea the poster session area controller
+   * @returns a promise wrapping the new number of stars the poster has
+   */
+  public async getKaraokeAreaSongInfo(
+    karaokeArea: KaraokeAreaController,
+    songID: string,
+  ): Promise<SongSchema> {
+    return this._townsService.getSongInfo(this.townID, karaokeArea.id, this.sessionToken, songID);
+  }
+
+  /**
    * Determine which players are "nearby" -- that they should be included in our video call
    */
   public nearbyPlayers(): PlayerController[] {
