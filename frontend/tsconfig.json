@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "paths": {
+      "react": [ "./node_modules/@types/react" ]
+      },
     "target": "es6",
     "lib": [
       "dom",
@@ -27,7 +30,6 @@
   },
   "include": [
     "src",
-    "generated"
-  ],
+    "generated"],
   "references": [{"path": "../shared/"}]
 }

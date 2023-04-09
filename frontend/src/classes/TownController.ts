@@ -687,7 +687,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
         id: karaokeArea.name,
         title: karaokeArea.defaultTitle,
         songQueue: [],
-        isPlaying: false,
+        isSongPlaying: false,
         elapsedTimeSec: 0,
       });
       this._karaokeAreas.push(newController);

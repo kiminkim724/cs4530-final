@@ -75,7 +75,7 @@ export interface KaraokeArea {
   title?: string;
   currentSong?: string;
   songQueue: string[];
-  isPlaying: boolean;
+  isSongPlaying: boolean;
   elapsedTimeSec: number;
 }
 

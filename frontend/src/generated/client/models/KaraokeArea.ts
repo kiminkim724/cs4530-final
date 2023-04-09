@@ -7,7 +7,7 @@ export type KaraokeArea = {
     title?: string;
     currentSong?: string;
     songQueue: Array<string>;
-    isPlaying: boolean;
+    isSongPlaying: boolean;
     elapsedTimeSec: number;
 };
 

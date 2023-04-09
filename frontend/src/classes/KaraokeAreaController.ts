@@ -85,7 +85,7 @@ export default class KaraokeAreaController extends (EventEmitter as new () => Ty
    * Changing this value will emit a 'songChange' event to listeners
    */
   public set currentSong(song: string | undefined) {
-    if (this._model.currentSong !== this.currentSong) {
+    if (this._model.currentSong !== song) {
       this._model.currentSong = song;
       this.emit('songChange', song);
     }
@@ -106,7 +106,7 @@ export default class KaraokeAreaController extends (EventEmitter as new () => Ty
    */
   public set title(title: string | undefined) {
     console.log('line 107', this._model.title);
-    if (this._model.title !== this._model.title) {
+    if (this._model.title !== title) {
       this._model.title = title;
       this.emit('karaokeTitleChange', title);
     }
@@ -136,7 +136,7 @@ export default class KaraokeAreaController extends (EventEmitter as new () => Ty
    * that the song is paused.
    */
   public get isPlaying() {
-    return this._model.isPlaying;
+    return this._model.isSongPlaying;
   }
 
   /**
@@ -146,8 +146,8 @@ export default class KaraokeAreaController extends (EventEmitter as new () => Ty
    * Changing this value will emit a 'playbackChange' event to listeners
    */
   public set isPlaying(isPlaying: boolean) {
-    if (this._model.isPlaying != isPlaying) {
-      this._model.isPlaying = isPlaying;
+    if (this._model.isSongPlaying != isPlaying) {
+      this._model.isSongPlaying = isPlaying;
       this.emit('playbackChange', isPlaying);
     }
   }
@@ -185,7 +185,7 @@ export default class KaraokeAreaController extends (EventEmitter as new () => Ty
    * @param updatedModel
    */
   public updateFrom(updatedModel: KaraokeAreaModel): void {
-    this.isPlaying = updatedModel.isPlaying;
+    this.isPlaying = updatedModel.isSongPlaying;
     this.title = updatedModel.title;
     this.elapsedTimeSec = updatedModel.elapsedTimeSec;
     this.currentSong = updatedModel.currentSong;

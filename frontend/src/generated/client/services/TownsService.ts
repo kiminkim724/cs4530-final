@@ -195,6 +195,71 @@ export class TownsService {
     }
 
     /**
+     * @param codeChallenge
+     * @param state
+     * @returns void
+     * @throws ApiError
+     */
+    public spotifyAuthorize(
+        codeChallenge: string,
+        state: string,
+    ): CancelablePromise<void> {
+        return this.httpRequest.request({
+            method: 'GET',
+            url: '/towns/authorize',
+            query: {
+                'codeChallenge': codeChallenge,
+                'state': state,
+            },
+        });
+    }
+
+    /**
+     * @param codeVerifier
+     * @returns void
+     * @throws ApiError
+     */
+    public spotifyCallback(
+        codeVerifier: string,
+    ): CancelablePromise<void> {
+        return this.httpRequest.request({
+            method: 'GET',
+            url: '/towns/callback',
+            query: {
+                'codeVerifier': codeVerifier,
+            },
+        });
+    }
+
+    /**
+     * @param townId
+     * @param karaokeSessionId
+     * @param xSessionToken
+     * @returns void
+     * @throws ApiError
+     */
+    public spotifyClientCredentials(
+        townId: string,
+        karaokeSessionId: string,
+        xSessionToken: string,
+    ): CancelablePromise<void> {
+        return this.httpRequest.request({
+            method: 'GET',
+            url: '/towns/{townID}/{karaokeSessionId}/clientCredentials',
+            path: {
+                'townID': townId,
+                'karaokeSessionId': karaokeSessionId,
+            },
+            headers: {
+                'X-Session-Token': xSessionToken,
+            },
+            errors: {
+                400: `Invalid values specified`,
+            },
+        });
+    }
+
+    /**
      * Creates a poster session area in a given town
      * @param townId ID of the town in which to create the new poster session area
      * @param xSessionToken session token of the player making the request, must
