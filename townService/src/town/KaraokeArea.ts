@@ -53,6 +53,7 @@ export default class KaraokeArea extends InteractableArea {
       elapsedTimeSec: progress,
       currentSong,
       title,
+      songQueue,
     }: KaraokeAreaModel,
     coordinates: BoundingBox,
     townEmitter: TownEmitter,
@@ -60,7 +61,7 @@ export default class KaraokeArea extends InteractableArea {
     super(id, coordinates, townEmitter);
     this._currentSong = currentSong;
     this._title = title;
-    this._songQueue = [];
+    this._songQueue = songQueue;
     this._elapsedTimeSec = progress;
     this._isSongPlaying = isPlaying;
   }
@@ -76,6 +77,8 @@ export default class KaraokeArea extends InteractableArea {
   public remove(player: Player): void {
     super.remove(player);
     if (this._occupants.length === 0) {
+      this._isSongPlaying = false;
+      this._elapsedTimeSec = 0;
       this._currentSong = undefined;
       this._title = undefined;
       this._songQueue = [];
@@ -109,10 +112,11 @@ export default class KaraokeArea extends InteractableArea {
   public toModel(): KaraokeAreaModel {
     return {
       id: this.id,
-      currentSong: this._currentSong,
-      songQueue: this._songQueue,
       isSongPlaying: this._isSongPlaying,
       elapsedTimeSec: this._elapsedTimeSec,
+      currentSong: this._currentSong,
+      title: this._title,
+      songQueue: this._songQueue,
     };
   }
 
