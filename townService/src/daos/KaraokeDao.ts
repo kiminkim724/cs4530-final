@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import SongSchema, { schema } from './SongSchema';
 
 const DATABASE_NAME = 'coveytown';
-const URL = `mongodb+srv://dbUser:ycKZuSVSismRDcFI@coveytown.uelevvd.mongodb.net/${DATABASE_NAME}?retryWrites=true&w=majority`;
+const URL = `mongodb+srv://${process.env.DB_CREDENTIALS}@coveytown.uelevvd.mongodb.net/${DATABASE_NAME}?retryWrites=true&w=majority`;
 
 export default class KaraokeDao {
   private _songModel = mongoose.model<SongSchema>('SongModel', schema);
