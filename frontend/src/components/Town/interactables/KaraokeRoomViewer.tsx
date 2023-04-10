@@ -1,8 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import TownController, {
-  useInteractable,
-  useKaraokeAreaController,
-} from '../../../classes/TownController';
+import { useInteractable, useKaraokeAreaController } from '../../../classes/TownController';
 import KaraokeAreaController, { useTitle } from '../../../classes/KaraokeAreaController';
 import useTownController from '../../../hooks/useTownController';
 import SelectKaraokeModal from './SelectKaraokeModal';
@@ -45,7 +42,7 @@ export function KaraokeRoom({
   console.log('first test');
   const token = localStorage.getItem('access-token');
   console.log(controller);
-  useEffect(() => {}, [intervalID, playerRef.current]);
+  useEffect(() => {}, [intervalID, player]);
 
   useEffect(() => {
     console.log('enter');

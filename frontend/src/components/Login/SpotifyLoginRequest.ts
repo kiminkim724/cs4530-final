@@ -1,5 +1,5 @@
 const CLIENT_ID = process.env.REACT_APP_CLIENT_ID || null;
-const REDIRECT_URI = 'http://localhost:3000';
+const REDIRECT_URI = process.env.REACT_APP_REDIRECT_URI;
 
 function generateRandomString(length: number) {
   let text = '';
@@ -34,7 +34,7 @@ export const handleSpotifyLogin = async () => {
     const scope = 'streaming user-read-private user-read-email';
 
     localStorage.setItem('code-verifier', codeVerifier);
-    if (CLIENT_ID) {
+    if (CLIENT_ID && REDIRECT_URI) {
       const args = new URLSearchParams({
         response_type: 'code',
         client_id: CLIENT_ID,
@@ -56,9 +56,8 @@ function processTokenResponse(data: {
   expires_in: number;
   refresh_token: string;
 }) {
-  console.log(data);
   localStorage.setItem('access-token', data.access_token);
-  localStorage.setItem('access-token-expired', (Date.now() + data.expires_in).toString());
+  localStorage.setItem('access-token-expired', (Date.now() + data.expires_in * 1000).toString());
   localStorage.setItem('refresh-token', data.refresh_token);
 
   window.history.replaceState(null, '', window.location.pathname);
@@ -66,7 +65,7 @@ function processTokenResponse(data: {
 
 export async function exchangeToken(code: string) {
   const codeVerifier = localStorage.getItem('code-verifier');
-  if (code && CLIENT_ID && codeVerifier) {
+  if (code && CLIENT_ID && codeVerifier && REDIRECT_URI) {
     const body = new URLSearchParams({
       grant_type: 'authorization_code',
       code: code,
@@ -75,7 +74,6 @@ export async function exchangeToken(code: string) {
       code_verifier: codeVerifier,
     });
 
-    console.log('test');
     fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
       headers: {
