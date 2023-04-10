@@ -94,7 +94,7 @@ export function KaraokeViewer({
   const karaokeAreaController = useKaraokeAreaController(karaokeArea.name);
   // console.log('122');
   const [selectIsOpen, setSelectIsOpen] = useState(karaokeAreaController.title == undefined);
-  karaokeAreaController.title = 'test';
+  karaokeAreaController.title = 'Karaoke Area';
   const karaokeRoomTitle = useTitle(karaokeAreaController);
 
   console.log(karaokeAreaController);

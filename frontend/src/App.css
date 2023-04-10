@@ -106,12 +106,13 @@
 }
 
 .now-playing__name {
-  font-size: 1.5em;
-  margin-bottom: 0.2em;
+  font-size: 3vw;
+  font-weight: bold;
 }
 
 .now-playing__artist {
   margin-bottom: 1em;
+  color: black;
 }
 
 .now-playing__status {
@@ -119,12 +120,8 @@
 }
 
 .now-playing__cover {
-  border-radius: 8px;
-  float: left;
-  margin-right: 10px;
-  text-align: right;
-  width: 300px;
-  height: 300px;
+  display: block;
+  max-width: 80%;
 }
 
 .now-playing__side {
@@ -134,14 +131,15 @@
 
 .btn-spotify {
   background-color: #44c767;
-  border-radius: 28px;
+  border-radius: 15px;
   border: 1px solid #18ab29;
+  max-width: 40%;
+  height: auto;
   display: inline-block;
   cursor: pointer;
   color: #ffffff;
-  font-family: Arial;
-  font-size: 17px;
-  padding: 16px 31px;
+  margin: 1em;
+  padding: 10px 25px;
   text-decoration: none;
   text-shadow: 0px 1px 0px #2f6627;
 }

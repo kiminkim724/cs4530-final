@@ -4,6 +4,8 @@ import KaraokeAreaController from '../../../classes/KaraokeAreaController';
 import useTownController from '../../../hooks/useTownController';
 import Searcher from './KaraokeAreaComponents/Searcher';
 import SongQueue from './KaraokeAreaComponents/songQueue';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Card, Col, Container, Row } from 'react-bootstrap';
 
 const ALLOWED_DRIFT = 1;
 
@@ -292,38 +294,47 @@ function WebPlayback(props: {
             <div>
               <Searcher token={props.token} addSong={addSong} />
             </div>
-            <div className='container'>
-              <div className='main-wrapper'>
-                <img
-                  src={currentTrack?.album.images[0].url}
-                  className='now-playing__cover'
-                  alt=''
-                />
-
-                <div className='now-playing__side'>
-                  <div className='now-playing__name'>{currentTrack?.name}</div>
-                  <div className='now-playing__artist'>{currentTrack?.artists[0].name}</div>
-                  <div className='now-playing__artist'>
-                    {currentTrack
-                      ? millisToMinutesAndSeconds(timeRef.current) +
-                        '/' +
-                        millisToMinutesAndSeconds(currentTrack.duration_ms)
-                      : 'N/A'}
-                  </div>
-
-                  <button
-                    className='btn-spotify'
-                    onClick={() => {
-                      playNextSong();
-                    }}>
-                    Skip
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div>
+            <Container>
+              <Container>
+                <Card className='bg-secondary'>
+                  <Row className='row no-gutters'>
+                    <Col>
+                      <Card.Img
+                        src={currentTrack?.album.images[0].url}
+                        className='m-1 now-playing__cover'
+                      />
+                    </Col>
+                    <Col>
+                      <Card.Body className='text-center'>
+                        <Card.Title>
+                          <h3 className='now-playing__name'>{currentTrack?.name}</h3>
+                        </Card.Title>
+                        <Card.Subtitle className='now-playing__artist'>
+                          {currentTrack?.artists[0].name}
+                        </Card.Subtitle>
+                        <img
+                          src='/assets/skipbutton.png'
+                          className='btn-spotify'
+                          onClick={() => {
+                            playNextSong();
+                          }}
+                        />
+                        <Card.Subtitle className='mt-2'>
+                          {currentTrack
+                            ? millisToMinutesAndSeconds(timeRef.current) +
+                              '/' +
+                              millisToMinutesAndSeconds(currentTrack.duration_ms)
+                            : 'N/A'}
+                        </Card.Subtitle>
+                      </Card.Body>
+                    </Col>
+                  </Row>
+                </Card>
+              </Container>
+            </Container>
+            <Container>
               <SongQueue queue={currentQueue} token={props.token} />
-            </div>
+            </Container>
           </div>
           <ModalCloseButton />
         </ModalContent>
