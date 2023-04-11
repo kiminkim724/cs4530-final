@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Container, Row, Card, CardGroup, Col } from 'react-bootstrap';
+import { Row, Card, CardGroup, Col } from 'react-bootstrap';
 
 interface Track {
   image: string;
@@ -46,10 +46,14 @@ function SongQueue(props: { queue: string[]; token: string }) {
 
   return (
     <>
-      <Container className='mt-2'>
-        <h2>Song Queue:</h2>
-      </Container>
-      <Container>
+      <Col className='ml-2 mt-2'>
+        {songQueue ? (
+          <h2 className='text-center'>Song Queue:</h2>
+        ) : (
+          <h2 className='text-center'>No songs in queue</h2>
+        )}
+      </Col>
+      <Col xs={10}>
         <CardGroup className='m-2 d-block'>
           {songQueue.map(song => (
             <Card key={song.id} className='bg-secondary'>
@@ -59,15 +63,15 @@ function SongQueue(props: { queue: string[]; token: string }) {
                 </Col>
                 <Col xs={10}>
                   <Card.Body>
-                    <Card.Title className='text-dark'>{song.name}</Card.Title>
-                    <Card.Subtitle className='text-white'>{song.artist.name}</Card.Subtitle>
+                    <Card.Title className='text-white'>{song.name}</Card.Title>
+                    <Card.Subtitle className='text-dark'>{song.artist.name}</Card.Subtitle>
                   </Card.Body>
                 </Col>
               </Row>
             </Card>
           ))}
         </CardGroup>
-      </Container>
+      </Col>
     </>
   );
 }
