@@ -44,7 +44,8 @@ export default function TownSelection(): JSX.Element {
     const refreshTokenString = localStorage.getItem('refresh-token');
     if (localStorage.getItem('access-token') && tokenExpires) {
       const tokenExpireTime: number = parseInt(tokenExpires);
-      if (Math.abs(tokenExpireTime - Date.now()) > 3600 && refreshTokenString) {
+      console.log(Math.abs(tokenExpireTime - Date.now()));
+      if (Math.abs(tokenExpireTime - Date.now()) < 3600 && refreshTokenString) {
         console.log('refreshing token');
         refreshToken(refreshTokenString);
       }

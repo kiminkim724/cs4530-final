@@ -1,4 +1,10 @@
-import { Modal, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/react';
+import {
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  useToast,
+} from '@chakra-ui/react';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import KaraokeAreaController from '../../../classes/KaraokeAreaController';
 import useTownController from '../../../hooks/useTownController';
@@ -55,6 +61,7 @@ function WebPlayback(props: {
   const [currentTime, setTime] = useState<number>(props.controller.elapsedTimeSec);
   const [currentQueue, setQueue] = useState<string[]>(props.controller.songQueue);
   const [deviceID, setDeviceID] = useState('');
+  const toast = useToast();
 
   const timeRef = useRef(currentTime);
   const trackRef = useRef(currentTrack);
@@ -136,9 +143,17 @@ function WebPlayback(props: {
 
   const addSong = (id: string) => {
     if (id && props.controller.songQueue.find(song => song === id)) {
+      toast({
+        title: `Song already in queue`,
+        status: 'error',
+      });
       console.log('song already in queue');
     } else {
       console.log('adding song to queue');
+      toast({
+        title: `Song added to queue`,
+        status: 'success',
+      });
       props.controller.songQueue = props.controller.songQueue.concat(id);
       townController.emitKaraokeAreaUpdate(props.controller);
     }
@@ -148,12 +163,20 @@ function WebPlayback(props: {
     if (props.controller.songQueue.length > 0) {
       const id = props.controller.songQueue[0];
       console.log(id);
+      toast({
+        title: `Song skipped`,
+        status: 'success',
+      });
       props.controller.currentSong = id;
       props.controller.songQueue = props.controller.songQueue.splice(1);
       props.controller.elapsedTimeSec = 0;
       townController.emitKaraokeAreaUpdate(props.controller);
       playSong(id);
     } else {
+      toast({
+        title: `No songs in queue`,
+        status: 'error',
+      });
       console.log('No songs in queue');
     }
   };
@@ -267,7 +290,7 @@ function WebPlayback(props: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!props.player) {
+  if (!props.player && props.isOpen) {
     return (
       <>
         <div className='container'>
@@ -279,12 +302,7 @@ function WebPlayback(props: {
     );
   } else {
     return (
-      <Modal
-        isOpen={props.isOpen}
-        size={'4xl'}
-        onClose={() => {
-          props.onClose();
-        }}>
+      <>
         <ModalOverlay />
         <ModalContent>
           {<ModalHeader>{props.title} </ModalHeader>}
@@ -336,7 +354,7 @@ function WebPlayback(props: {
           </div>
           <ModalCloseButton />
         </ModalContent>
-      </Modal>
+      </>
     );
   }
 }
