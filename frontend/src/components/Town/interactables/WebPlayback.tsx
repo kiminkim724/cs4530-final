@@ -1,4 +1,10 @@
-import { Modal, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/react';
+import {
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  useToast,
+} from '@chakra-ui/react';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import KaraokeAreaController from '../../../classes/KaraokeAreaController';
 import useTownController from '../../../hooks/useTownController';
@@ -63,6 +69,7 @@ function WebPlayback(props: {
   const [dislikes, setDislikes] = useState(0);
   const [liked, setLiked] = useState(false);
   const [disliked, setDisliked] = useState(false);
+  const toast = useToast();
 
   const timeRef = useRef(currentTime);
   const trackRef = useRef(currentTrack);
@@ -161,9 +168,17 @@ function WebPlayback(props: {
 
   const addSong = (id: string) => {
     if (id && props.controller.songQueue.find(song => song === id)) {
+      toast({
+        title: `Song already in queue`,
+        status: 'error',
+      });
       console.log('song already in queue');
     } else {
       console.log('adding song to queue');
+      toast({
+        title: `Song added to queue`,
+        status: 'success',
+      });
       props.controller.songQueue = props.controller.songQueue.concat(id);
       townController.emitKaraokeAreaUpdate(props.controller);
     }
@@ -173,12 +188,20 @@ function WebPlayback(props: {
     if (props.controller.songQueue.length > 0) {
       const id = props.controller.songQueue[0];
       console.log(id);
+      toast({
+        title: `Song skipped`,
+        status: 'success',
+      });
       props.controller.currentSong = id;
       props.controller.songQueue = props.controller.songQueue.splice(1);
       props.controller.elapsedTimeSec = 0;
       townController.emitKaraokeAreaUpdate(props.controller);
       playSong(id);
     } else {
+      toast({
+        title: `No songs in queue`,
+        status: 'error',
+      });
       console.log('No songs in queue');
     }
   };
@@ -261,9 +284,7 @@ function WebPlayback(props: {
 
   useEffect(() => {}, [currentTrack, currentTime]);
 
-  useEffect(() => {
-    console.log(props.intervalID);
-  }, [props.intervalID]);
+  useEffect(() => {}, [props.intervalID]);
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -312,13 +333,10 @@ function WebPlayback(props: {
       tempPlayer.connect();
 
       const interval = setInterval(() => {
-        console.log(tempPlayer);
         tempPlayer.getCurrentState().then(state => {
-          console.log(state);
           if (state) {
             setMyTime(state.position);
             const currTime = Math.floor(state.position / 1000);
-            console.log(currTime);
             if (currTime != 0 && currTime != props.controller.elapsedTimeSec) {
               props.controller.elapsedTimeSec = currTime;
               townController.emitKaraokeAreaUpdate(props.controller);
@@ -326,7 +344,6 @@ function WebPlayback(props: {
           }
         });
       }, 1000);
-      console.log(interval);
       props.setIntervalID(interval);
       return () => {
         console.log('test');
@@ -337,7 +354,7 @@ function WebPlayback(props: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!props.player) {
+  if (!props.player && props.isOpen) {
     return (
       <>
         <div className='container'>
@@ -349,12 +366,7 @@ function WebPlayback(props: {
     );
   } else {
     return (
-      <Modal
-        isOpen={props.isOpen}
-        size={'4xl'}
-        onClose={() => {
-          props.onClose();
-        }}>
+      <>
         <ModalOverlay />
         <ModalContent>
           {<ModalHeader>{props.title} </ModalHeader>}
@@ -447,7 +459,7 @@ function WebPlayback(props: {
           </div>
           <ModalCloseButton />
         </ModalContent>
-      </Modal>
+      </>
     );
   }
 }

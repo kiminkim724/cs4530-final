@@ -44,7 +44,7 @@ export default function TownSelection(): JSX.Element {
     const refreshTokenString = localStorage.getItem('refresh-token');
     if (localStorage.getItem('access-token') && tokenExpires) {
       const tokenExpireTime: number = parseInt(tokenExpires);
-      if (Math.abs(tokenExpireTime - Date.now()) > 3600 && refreshTokenString) {
+      if (tokenExpireTime - Date.now() < 3600 && refreshTokenString) {
         console.log('refreshing token');
         refreshToken(refreshTokenString);
       }
@@ -184,6 +184,17 @@ export default function TownSelection(): JSX.Element {
     <>
       <form>
         <Stack>
+          <Box>
+            {localStorage.getItem('access-token') ? (
+              <Heading as='h2' size='lg'>
+                Logged into Spotify
+              </Heading>
+            ) : (
+              <Button data-testid='spotifyLogin' onClick={handleSpotifyLogin}>
+                Login to Spotify
+              </Button>
+            )}
+          </Box>
           <Box>
             {localStorage.getItem('access-token') ? (
               <Heading as='h2' size='lg'>

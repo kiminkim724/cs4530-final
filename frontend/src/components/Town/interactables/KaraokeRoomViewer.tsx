@@ -5,6 +5,7 @@ import useTownController from '../../../hooks/useTownController';
 import SelectKaraokeModal from './SelectKaraokeModal';
 import KaraokeSessionInteractable from './KaraokeArea';
 import WebPlayback from './WebPlayback';
+import { Modal } from '@chakra-ui/react';
 
 /**
  * The Karaoke Room Viewer component does the following:
@@ -46,6 +47,7 @@ export function KaraokeRoom({
 
   useEffect(() => {
     console.log('enter');
+    townController.pause();
     return () => {
       console.log('leave');
       console.log(playerRef.current);
@@ -55,25 +57,33 @@ export function KaraokeRoom({
       playerRef.current?.removeListener('not_ready');
       playerRef.current?.removeListener('ready');
       playerRef.current?.removeListener('player_state_changed');
+      townController.unPause();
+      close();
     };
-  }, []);
+  }, [close, townController]);
 
-  if (token) {
+  if (token && isOpen) {
     return (
-      <WebPlayback
+      <Modal
         isOpen={isOpen}
+        size={'4xl'}
         onClose={() => {
-          townController.unPause();
           close();
-        }}
-        title={title}
-        token={token}
-        controller={controller}
-        player={playerRef.current}
-        setPlayer={setMyPlayer}
-        intervalID={intervalRef.current}
-        setIntervalID={setMyIntervalID}
-      />
+        }}>
+        <WebPlayback
+          isOpen={isOpen}
+          onClose={() => {
+            close();
+          }}
+          title={title}
+          token={token}
+          controller={controller}
+          player={playerRef.current}
+          setPlayer={setMyPlayer}
+          intervalID={intervalRef.current}
+          setIntervalID={setMyIntervalID}
+        />
+      </Modal>
     );
   } else {
     return <></>;
@@ -94,21 +104,17 @@ export function KaraokeViewer({
   const karaokeAreaController = useKaraokeAreaController(karaokeArea.name);
   // console.log('122');
   const [selectIsOpen, setSelectIsOpen] = useState(karaokeAreaController.title == undefined);
-  karaokeAreaController.title = 'Karaoke Area';
+  //karaokeAreaController.title = 'Karaoke Area';
   const karaokeRoomTitle = useTitle(karaokeAreaController);
 
   console.log(karaokeAreaController);
 
   useEffect(() => {
-    // console.log('125');
     const setTitle = (title: string | undefined) => {
       if (!title) {
-        // console.log('126');
         townController.interactableEmitter.emit('endIteraction', karaokeAreaController);
       } else {
-        // console.log('127');
         karaokeAreaController.title = title;
-        console.log(title);
       }
     };
     karaokeAreaController.addListener('karaokeTitleChange', setTitle);
@@ -119,7 +125,6 @@ export function KaraokeViewer({
   }, [karaokeAreaController, townController]);
   if (!karaokeRoomTitle) {
     console.log(karaokeRoomTitle);
-    console.log('shouldnt go here');
     return (
       <SelectKaraokeModal
         isOpen={selectIsOpen}

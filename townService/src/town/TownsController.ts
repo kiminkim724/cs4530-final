@@ -38,6 +38,8 @@ dotenv.config();
 
 dotenv.config();
 
+dotenv.config();
+
 /**
  * This is the town route
  */
