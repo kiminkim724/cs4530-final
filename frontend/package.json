@@ -6,6 +6,10 @@
     "@chakra-ui/react": "^1.7.5",
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
+    "@fortawesome/fontawesome-svg-core": "^6.4.0",
+    "@fortawesome/free-regular-svg-icons": "^6.4.0",
+    "@fortawesome/free-solid-svg-icons": "^6.4.0",
+    "@fortawesome/react-fontawesome": "^0.2.0",
     "@material-ui/core": "^4.12.4",
     "@material-ui/icons": "^4.11.3",
     "@testing-library/jest-dom": "^5.16.4",
@@ -59,6 +63,11 @@
     "typed-emitter": "^2.1.0",
     "typescript": "^4.7.4",
     "web-vitals": "^2.1.4"
+  },
+  "babelMacros" : {
+    "fontawesome-svg-core" : {
+      "license": "free"
+    }
   },
   "scripts": {
     "prestart": "npm run client",

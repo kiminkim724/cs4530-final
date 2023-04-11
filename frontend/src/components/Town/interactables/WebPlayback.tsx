@@ -12,6 +12,8 @@ import Searcher from './KaraokeAreaComponents/Searcher';
 import SongQueue from './KaraokeAreaComponents/songQueue';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Card, Col, Container, Row } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { icon } from '@fortawesome/fontawesome-svg-core/import.macro';
 
 const ALLOWED_DRIFT = 1;
 
@@ -61,6 +63,12 @@ function WebPlayback(props: {
   const [currentTime, setTime] = useState<number>(props.controller.elapsedTimeSec);
   const [currentQueue, setQueue] = useState<string[]>(props.controller.songQueue);
   const [deviceID, setDeviceID] = useState('');
+  const [stars, setStars] = useState<0 | 1 | 2 | 3 | 4 | 5>(0);
+  const [rating, setRating] = useState<number>(0.0);
+  const [likes, setLikes] = useState(0);
+  const [dislikes, setDislikes] = useState(0);
+  const [liked, setLiked] = useState(false);
+  const [disliked, setDisliked] = useState(false);
   const toast = useToast();
 
   const timeRef = useRef(currentTime);
@@ -82,6 +90,31 @@ function WebPlayback(props: {
         console.log('ID is undefined');
         return;
       }
+      const songInfo = await townController.getKaraokeAreaSongInfo(props.controller, id);
+      const numRatings =
+        songInfo.ratings[1] +
+        songInfo.ratings[2] +
+        songInfo.ratings[3] +
+        songInfo.ratings[4] +
+        songInfo.ratings[5];
+      if (numRatings === 0) {
+        setRating(0);
+      } else {
+        const newRating =
+          ((songInfo.ratings[1] * 1 +
+            songInfo.ratings[2] * 2 +
+            songInfo.ratings[3] * 3 +
+            songInfo.ratings[4] * 4 +
+            songInfo.ratings[5] * 5) *
+            1.0) /
+          numRatings;
+        setRating(newRating);
+      }
+      setLikes(songInfo.reactions.likes);
+      setDislikes(songInfo.reactions.dislikes);
+      setStars(0);
+      setLiked(false);
+      setDisliked(false);
       await fetchPlus(
         `https://api.spotify.com/v1/tracks/${id}`,
         {
@@ -178,6 +211,51 @@ function WebPlayback(props: {
         status: 'error',
       });
       console.log('No songs in queue');
+    }
+  };
+
+  const handleStars = async (numStars: 1 | 2 | 3 | 4 | 5) => {
+    if (stars == 0) {
+      setStars(numStars);
+    } else {
+      return;
+    }
+    if (props.controller.currentSong) {
+      await townController.updateKaraokeAreaSongRating(
+        props.controller,
+        props.controller.currentSong,
+        numStars,
+      );
+    }
+  };
+
+  const handleLike = async () => {
+    if (disliked || liked) {
+      return;
+    }
+    setLiked(true);
+    setLikes(likes + 1);
+    if (props.controller.currentSong) {
+      await townController.updateKaraokeAreaSongReaction(
+        props.controller,
+        props.controller.currentSong,
+        'likes',
+      );
+    }
+  };
+
+  const handleDislike = async () => {
+    if (disliked || liked) {
+      return;
+    }
+    setDisliked(true);
+    setDislikes(dislikes + 1);
+    if (props.controller.currentSong) {
+      await townController.updateKaraokeAreaSongReaction(
+        props.controller,
+        props.controller.currentSong,
+        'dislikes',
+      );
     }
   };
 
@@ -329,6 +407,47 @@ function WebPlayback(props: {
                             playNextSong();
                           }}
                         />
+                        <div>Rating: {rating.toPrecision(2)}</div>
+                        <div>
+                          {[1, 2, 3, 4, 5].map(num => (
+                            <FontAwesomeIcon
+                              key={num}
+                              onClick={() => {
+                                handleStars(num as 1 | 2 | 3 | 4 | 5);
+                              }}
+                              icon={
+                                stars >= num
+                                  ? icon({ name: 'star', style: 'solid' })
+                                  : icon({ name: 'star', style: 'regular' })
+                              }
+                            />
+                          ))}
+                        </div>
+                        <div>
+                          <FontAwesomeIcon
+                            onClick={() => {
+                              handleLike();
+                            }}
+                            icon={
+                              liked
+                                ? icon({ name: 'thumbs-up', style: 'solid' })
+                                : icon({ name: 'thumbs-up', style: 'regular' })
+                            }
+                          />
+                          {likes}
+                          <FontAwesomeIcon
+                            className='ms-2'
+                            onClick={() => {
+                              handleDislike();
+                            }}
+                            icon={
+                              disliked
+                                ? icon({ name: 'thumbs-down', style: 'solid' })
+                                : icon({ name: 'thumbs-down', style: 'regular' })
+                            }
+                          />
+                          {dislikes}
+                        </div>
                         <Card.Subtitle className='mt-2'>
                           {currentTrack
                             ? millisToMinutesAndSeconds(timeRef.current) +

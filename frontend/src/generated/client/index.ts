@@ -13,6 +13,7 @@ export type { ConversationArea } from './models/ConversationArea';
 export type { InvalidParametersError } from './models/InvalidParametersError';
 export type { KaraokeArea } from './models/KaraokeArea';
 export type { PosterSessionArea } from './models/PosterSessionArea';
+export type { SongSchema } from './models/SongSchema';
 export type { Town } from './models/Town';
 export type { TownCreateParams } from './models/TownCreateParams';
 export type { TownCreateResponse } from './models/TownCreateResponse';

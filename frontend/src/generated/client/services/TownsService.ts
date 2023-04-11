@@ -4,6 +4,7 @@
 import type { ConversationArea } from '../models/ConversationArea';
 import type { KaraokeArea } from '../models/KaraokeArea';
 import type { PosterSessionArea } from '../models/PosterSessionArea';
+import type { SongSchema } from '../models/SongSchema';
 import type { Town } from '../models/Town';
 import type { TownCreateParams } from '../models/TownCreateParams';
 import type { TownCreateResponse } from '../models/TownCreateResponse';
@@ -36,8 +37,8 @@ export class TownsService {
      * @throws ApiError
      */
     public createTown(
-        requestBody: TownCreateParams,
-    ): CancelablePromise<TownCreateResponse> {
+requestBody: TownCreateParams,
+): CancelablePromise<TownCreateResponse> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/towns',
@@ -51,14 +52,14 @@ export class TownsService {
      * @param townId town to update
      * @param xCoveyTownPassword town update password, must match the password returned by createTown
      * @param requestBody The updated settings
-     * @returns void
+     * @returns void 
      * @throws ApiError
      */
     public updateTown(
-        townId: string,
-        xCoveyTownPassword: string,
-        requestBody: TownSettingsUpdate,
-    ): CancelablePromise<void> {
+townId: string,
+xCoveyTownPassword: string,
+requestBody: TownSettingsUpdate,
+): CancelablePromise<void> {
         return this.httpRequest.request({
             method: 'PATCH',
             url: '/towns/{townID}',
@@ -80,13 +81,13 @@ export class TownsService {
      * Deletes a town
      * @param townId ID of the town to delete
      * @param xCoveyTownPassword town update password, must match the password returned by createTown
-     * @returns void
+     * @returns void 
      * @throws ApiError
      */
     public deleteTown(
-        townId: string,
-        xCoveyTownPassword: string,
-    ): CancelablePromise<void> {
+townId: string,
+xCoveyTownPassword: string,
+): CancelablePromise<void> {
         return this.httpRequest.request({
             method: 'DELETE',
             url: '/towns/{townID}',
@@ -107,14 +108,14 @@ export class TownsService {
      * @param townId ID of the town in which to create the new conversation area
      * @param xSessionToken session token of the player making the request, must match the session token returned when the player joined the town
      * @param requestBody The new conversation area to create
-     * @returns void
+     * @returns void 
      * @throws ApiError
      */
     public createConversationArea(
-        townId: string,
-        xSessionToken: string,
-        requestBody: ConversationArea,
-    ): CancelablePromise<void> {
+townId: string,
+xSessionToken: string,
+requestBody: ConversationArea,
+): CancelablePromise<void> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/towns/{townID}/conversationArea',
@@ -136,16 +137,16 @@ export class TownsService {
      * Creates a viewing area in a given town
      * @param townId ID of the town in which to create the new viewing area
      * @param xSessionToken session token of the player making the request, must
-     * match the session token returned when the player joined the town
+ * match the session token returned when the player joined the town
      * @param requestBody The new viewing area to create
-     * @returns void
+     * @returns void 
      * @throws ApiError
      */
     public createViewingArea(
-        townId: string,
-        xSessionToken: string,
-        requestBody: ViewingArea,
-    ): CancelablePromise<void> {
+townId: string,
+xSessionToken: string,
+requestBody: ViewingArea,
+): CancelablePromise<void> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/towns/{townID}/viewingArea',
@@ -167,16 +168,16 @@ export class TownsService {
      * Creates a karaoke area in a given town
      * @param townId ID of the town in which to create the new karaoke area
      * @param xSessionToken session token of the player making the request, must
-     * match the session token returned when the player joined the town
+ * match the session token returned when the player joined the town
      * @param requestBody The new karaoke area to create
-     * @returns void
+     * @returns void 
      * @throws ApiError
      */
     public createKaraokeArea(
-        townId: string,
-        xSessionToken: string,
-        requestBody: KaraokeArea,
-    ): CancelablePromise<void> {
+townId: string,
+xSessionToken: string,
+requestBody: KaraokeArea,
+): CancelablePromise<void> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/towns/{townID}/karaokeArea',
@@ -195,15 +196,117 @@ export class TownsService {
     }
 
     /**
-     * @param codeChallenge
-     * @param state
-     * @returns void
+     * Updates the current song rating, or add a rating to an unrated song
+     * @param townId ID of the town in which to update the karaoke area image contents
+     * @param songId 
+     * @param rating 
+     * @param xSessionToken session token of the player making the request, must
+ * match the session token returned when the player joined the town
+     * @returns void 
+     * @throws ApiError
+     */
+    public updateSongRating(
+townId: string,
+songId: string,
+rating: 1 | 2 | 3 | 4 | 5,
+xSessionToken: string,
+): CancelablePromise<void> {
+        return this.httpRequest.request({
+            method: 'PATCH',
+            url: '/towns/{townID}/songRating',
+            path: {
+                'townID': townId,
+            },
+            headers: {
+                'X-Session-Token': xSessionToken,
+            },
+            query: {
+                'songID': songId,
+                'rating': rating,
+            },
+            errors: {
+                400: `Invalid values specified`,
+            },
+        });
+    }
+
+    /**
+     * Updates the current song rating, or add a rating to an unrated song
+     * @param townId ID of the town in which to update the karaoke area image contents
+     * @param songId 
+     * @param reaction 
+     * @param xSessionToken session token of the player making the request, must
+ * match the session token returned when the player joined the town
+     * @returns void 
+     * @throws ApiError
+     */
+    public updateSongReaction(
+townId: string,
+songId: string,
+reaction: 'likes' | 'dislikes',
+xSessionToken: string,
+): CancelablePromise<void> {
+        return this.httpRequest.request({
+            method: 'PATCH',
+            url: '/towns/{townID}/songReaction',
+            path: {
+                'townID': townId,
+            },
+            headers: {
+                'X-Session-Token': xSessionToken,
+            },
+            query: {
+                'songID': songId,
+                'reaction': reaction,
+            },
+            errors: {
+                400: `Invalid values specified`,
+            },
+        });
+    }
+
+    /**
+     * Gets the song information of a given karaoke area in a given town, based on the song id
+     * @param townId ID of the town in which to get the karaoke area song information
+     * @param songId 
+     * @param xSessionToken session token of the player making the request, must
+ * match the session token returned when the player joined the town
+     * @returns SongSchema Ok
+     * @throws ApiError
+     */
+    public getSongInfo(
+townId: string,
+songId: string,
+xSessionToken: string,
+): CancelablePromise<SongSchema> {
+        return this.httpRequest.request({
+            method: 'GET',
+            url: '/towns/{townID}/songInfo',
+            path: {
+                'townID': townId,
+            },
+            headers: {
+                'X-Session-Token': xSessionToken,
+            },
+            query: {
+                'songID': songId,
+            },
+            errors: {
+                400: `Invalid values specified`,
+            },
+        });
+    }
+
+    /**
+     * @param codeChallenge 
+     * @param state 
+     * @returns void 
      * @throws ApiError
      */
     public spotifyAuthorize(
-        codeChallenge: string,
-        state: string,
-    ): CancelablePromise<void> {
+codeChallenge: string,
+state: string,
+): CancelablePromise<void> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/towns/authorize',
@@ -215,13 +318,13 @@ export class TownsService {
     }
 
     /**
-     * @param codeVerifier
-     * @returns void
+     * @param codeVerifier 
+     * @returns void 
      * @throws ApiError
      */
     public spotifyCallback(
-        codeVerifier: string,
-    ): CancelablePromise<void> {
+codeVerifier: string,
+): CancelablePromise<void> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/towns/callback',
@@ -232,17 +335,17 @@ export class TownsService {
     }
 
     /**
-     * @param townId
-     * @param karaokeSessionId
-     * @param xSessionToken
-     * @returns void
+     * @param townId 
+     * @param karaokeSessionId 
+     * @param xSessionToken 
+     * @returns void 
      * @throws ApiError
      */
     public spotifyClientCredentials(
-        townId: string,
-        karaokeSessionId: string,
-        xSessionToken: string,
-    ): CancelablePromise<void> {
+townId: string,
+karaokeSessionId: string,
+xSessionToken: string,
+): CancelablePromise<void> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/towns/{townID}/{karaokeSessionId}/clientCredentials',
@@ -263,16 +366,16 @@ export class TownsService {
      * Creates a poster session area in a given town
      * @param townId ID of the town in which to create the new poster session area
      * @param xSessionToken session token of the player making the request, must
-     * match the session token returned when the player joined the town
+ * match the session token returned when the player joined the town
      * @param requestBody The new poster session area to create
-     * @returns void
+     * @returns void 
      * @throws ApiError
      */
     public createPosterSessionArea(
-        townId: string,
-        xSessionToken: string,
-        requestBody: PosterSessionArea,
-    ): CancelablePromise<void> {
+townId: string,
+xSessionToken: string,
+requestBody: PosterSessionArea,
+): CancelablePromise<void> {
         return this.httpRequest.request({
             method: 'POST',
             url: '/towns/{townID}/posterSessionArea',
@@ -295,15 +398,15 @@ export class TownsService {
      * @param townId ID of the town in which to get the poster session area image contents
      * @param posterSessionId interactable ID of the poster session
      * @param xSessionToken session token of the player making the request, must
-     * match the session token returned when the player joined the town
+ * match the session token returned when the player joined the town
      * @returns string Ok
      * @throws ApiError
      */
     public getPosterAreaImageContents(
-        townId: string,
-        posterSessionId: string,
-        xSessionToken: string,
-    ): CancelablePromise<string> {
+townId: string,
+posterSessionId: string,
+xSessionToken: string,
+): CancelablePromise<string> {
         return this.httpRequest.request({
             method: 'PATCH',
             url: '/towns/{townID}/{posterSessionId}/imageContents',
@@ -322,19 +425,19 @@ export class TownsService {
 
     /**
      * Increment the stars of a given poster session area in a given town, as long as there is
-     * a poster image. Returns the new number of stars.
+ * a poster image. Returns the new number of stars.
      * @param townId ID of the town in which to get the poster session area image contents
      * @param posterSessionId interactable ID of the poster session
      * @param xSessionToken session token of the player making the request, must
-     * match the session token returned when the player joined the town
+ * match the session token returned when the player joined the town
      * @returns number Ok
      * @throws ApiError
      */
     public incrementPosterAreaStars(
-        townId: string,
-        posterSessionId: string,
-        xSessionToken: string,
-    ): CancelablePromise<number> {
+townId: string,
+posterSessionId: string,
+xSessionToken: string,
+): CancelablePromise<number> {
         return this.httpRequest.request({
             method: 'PATCH',
             url: '/towns/{townID}/{posterSessionId}/incStars',

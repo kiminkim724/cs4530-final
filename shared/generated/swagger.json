@@ -183,6 +183,69 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"SongSchema": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"ratings": {
+						"properties": {
+							"1": {
+								"type": "number",
+								"format": "double"
+							},
+							"2": {
+								"type": "number",
+								"format": "double"
+							},
+							"3": {
+								"type": "number",
+								"format": "double"
+							},
+							"4": {
+								"type": "number",
+								"format": "double"
+							},
+							"5": {
+								"type": "number",
+								"format": "double"
+							}
+						},
+						"required": [
+							"5",
+							"4",
+							"3",
+							"2",
+							"1"
+						],
+						"type": "object"
+					},
+					"reactions": {
+						"properties": {
+							"dislikes": {
+								"type": "number",
+								"format": "double"
+							},
+							"likes": {
+								"type": "number",
+								"format": "double"
+							}
+						},
+						"required": [
+							"dislikes",
+							"likes"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"id",
+					"ratings",
+					"reactions"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"PosterSessionArea": {
 				"properties": {
 					"id": {
@@ -562,6 +625,199 @@
 						}
 					}
 				}
+			}
+		},
+		"/towns/{townID}/songRating": {
+			"patch": {
+				"operationId": "UpdateSongRating",
+				"responses": {
+					"204": {
+						"description": "No content"
+					},
+					"400": {
+						"description": "Invalid values specified",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InvalidParametersError"
+								}
+							}
+						}
+					}
+				},
+				"description": "Updates the current song rating, or add a rating to an unrated song",
+				"tags": [
+					"towns"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "ID of the town in which to update the karaoke area image contents",
+						"in": "path",
+						"name": "townID",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "songID",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "rating",
+						"required": true,
+						"schema": {
+							"type": "number",
+							"enum": [
+								1,
+								2,
+								3,
+								4,
+								5
+							]
+						}
+					},
+					{
+						"description": "session token of the player making the request, must\nmatch the session token returned when the player joined the town",
+						"in": "header",
+						"name": "X-Session-Token",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/towns/{townID}/songReaction": {
+			"patch": {
+				"operationId": "UpdateSongReaction",
+				"responses": {
+					"204": {
+						"description": "No content"
+					},
+					"400": {
+						"description": "Invalid values specified",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InvalidParametersError"
+								}
+							}
+						}
+					}
+				},
+				"description": "Updates the current song rating, or add a rating to an unrated song",
+				"tags": [
+					"towns"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "ID of the town in which to update the karaoke area image contents",
+						"in": "path",
+						"name": "townID",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "songID",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "reaction",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"enum": [
+								"likes",
+								"dislikes"
+							]
+						}
+					},
+					{
+						"description": "session token of the player making the request, must\nmatch the session token returned when the player joined the town",
+						"in": "header",
+						"name": "X-Session-Token",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/towns/{townID}/songInfo": {
+			"get": {
+				"operationId": "GetSongInfo",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SongSchema"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid values specified",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InvalidParametersError"
+								}
+							}
+						}
+					}
+				},
+				"description": "Gets the song information of a given karaoke area in a given town, based on the song id",
+				"tags": [
+					"towns"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "ID of the town in which to get the karaoke area song information",
+						"in": "path",
+						"name": "townID",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "songID",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "session token of the player making the request, must\nmatch the session token returned when the player joined the town",
+						"in": "header",
+						"name": "X-Session-Token",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			}
 		},
 		"/towns/authorize": {
