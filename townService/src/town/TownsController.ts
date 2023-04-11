@@ -212,7 +212,7 @@ export class TownsController extends Controller {
    * Updates the current song rating, or add a rating to an unrated song
    *
    * @param townID ID of the town in which to update the karaoke area image contents
-   * @param karaokeAreaId interactable ID of the karaoke
+   * @param songID ID of the song to update
    * @param sessionToken session token of the player making the request, must
    *        match the session token returned when the player joined the town
    *
@@ -245,7 +245,7 @@ export class TownsController extends Controller {
    * Updates the current song rating, or add a rating to an unrated song
    *
    * @param townID ID of the town in which to update the karaoke area image contents
-   * @param karaokeAreaId interactable ID of the karaoke
+   * @param songID ID of the song to update
    * @param sessionToken session token of the player making the request, must
    *        match the session token returned when the player joined the town
    *
@@ -278,7 +278,7 @@ export class TownsController extends Controller {
    * Gets the song information of a given karaoke area in a given town, based on the song id
    *
    * @param townID ID of the town in which to get the karaoke area song information
-   * @param karaokeAreaId interactable ID of the karaoke area
+   * @param songID ID of the song to retrieve
    * @param sessionToken session token of the player making the request, must
    *        match the session token returned when the player joined the town
    *
@@ -312,7 +312,7 @@ export class TownsController extends Controller {
    * Gets the song information of a given karaoke area in a given town, based on the song id
    *
    * @param townID ID of the town in which to get the karaoke area song information
-   * @param karaokeAreaId interactable ID of the karaoke area
+   * @param n number of songs to retrieve
    * @param sessionToken session token of the player making the request, must
    *        match the session token returned when the player joined the town
    *
