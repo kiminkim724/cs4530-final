@@ -31,5 +31,5 @@ export function isPosterSessionArea(interactable: Interactable): interactable is
  * Test to see if an interactable is a karaoke area
  */
 export function isKaraokeArea(interactable: Interactable): interactable is KaraokeArea {
-  return 'songQueue' in interactable;
+  return 'isSongPlaying' in interactable;
 }

@@ -379,7 +379,7 @@ export default class Town {
       return false;
     }
 
-    // find an existing poster session area with the same ID
+    // find an existing karaoke area with the same ID
     const existingKaraokeArea = <KaraokeArea>(
       this._interactables.find(area => area.id === karaokeArea.id && area instanceof KaraokeArea)
     );

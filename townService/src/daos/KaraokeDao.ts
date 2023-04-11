@@ -28,20 +28,7 @@ export default class KaraokeDao {
   public async addRatingToSong(songID: string, rating: 1 | 2 | 3 | 4 | 5) {
     const data = await this._songModel.findOne({ id: songID });
     if (!data) {
-      const newSong = {
-        id: songID,
-        ratings: {
-          1: 0,
-          2: 0,
-          3: 0,
-          4: 0,
-          5: 0,
-        },
-        reactions: {
-          likes: 0,
-          dislikes: 0,
-        },
-      };
+      const newSong = this._freshSong(songID);
       newSong.ratings[rating] = 1;
       this._songModel.create(newSong);
     } else {
@@ -49,6 +36,38 @@ export default class KaraokeDao {
       await this._songModel.findOneAndUpdate(
         { id: songID },
         { $set: { [`ratings.${rating}`]: newValue } },
+      );
+    }
+  }
+
+  private _freshSong(songID: string): SongSchema {
+    return {
+      id: songID,
+      ratings: {
+        1: 0,
+        2: 0,
+        3: 0,
+        4: 0,
+        5: 0,
+      },
+      reactions: {
+        likes: 0,
+        dislikes: 0,
+      },
+    };
+  }
+
+  public async addReactionToSong(songID: string, reaction: 'likes' | 'dislikes') {
+    const data = await this._songModel.findOne({ id: songID });
+    if (!data) {
+      const newSong = this._freshSong(songID);
+      newSong.reactions[reaction] = 1;
+      this._songModel.create(newSong);
+    } else {
+      const newValue: number = data.reactions[reaction] + 1;
+      await this._songModel.findOneAndUpdate(
+        { id: songID },
+        { $set: { [`reactions.${reaction}`]: newValue } },
       );
     }
   }

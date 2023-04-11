@@ -2,13 +2,11 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { Spotify_Track } from './Spotify_Track';
-
 export type KaraokeArea = {
     id: string;
     title?: string;
-    currentSong?: Spotify_Track;
+    currentSong?: string;
     songQueue: Array<string>;
-    isPlaying: boolean;
+    isSongPlaying: boolean;
     elapsedTimeSec: number;
 };

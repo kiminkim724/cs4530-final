@@ -75,65 +75,25 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Image": {
-        "dataType": "refObject",
-        "properties": {
-            "height": {"dataType":"union","subSchemas":[{"dataType":"double"},{"dataType":"enum","enums":[null]},{"dataType":"undefined"}]},
-            "url": {"dataType":"string","required":true},
-            "size": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]},{"dataType":"undefined"}]},
-            "width": {"dataType":"union","subSchemas":[{"dataType":"double"},{"dataType":"enum","enums":[null]},{"dataType":"undefined"}]},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Album": {
-        "dataType": "refObject",
-        "properties": {
-            "name": {"dataType":"string","required":true},
-            "uri": {"dataType":"string","required":true},
-            "images": {"dataType":"array","array":{"dataType":"refObject","ref":"Image"},"required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Entity": {
-        "dataType": "refObject",
-        "properties": {
-            "name": {"dataType":"string","required":true},
-            "uri": {"dataType":"string","required":true},
-            "url": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Spotify.Track": {
-        "dataType": "refObject",
-        "properties": {
-            "album": {"ref":"Album","required":true},
-            "artists": {"dataType":"array","array":{"dataType":"refObject","ref":"Entity"},"required":true},
-            "duration_ms": {"dataType":"double","required":true},
-            "id": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
-            "is_playable": {"dataType":"boolean","required":true},
-            "name": {"dataType":"string","required":true},
-            "uid": {"dataType":"string","required":true},
-            "uri": {"dataType":"string","required":true},
-            "media_type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["audio"]},{"dataType":"enum","enums":["video"]}],"required":true},
-            "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["track"]},{"dataType":"enum","enums":["episode"]},{"dataType":"enum","enums":["ad"]}],"required":true},
-            "track_type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["audio"]},{"dataType":"enum","enums":["video"]}],"required":true},
-            "linked_from": {"dataType":"nestedObjectLiteral","nestedProperties":{"id":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"uri":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true}},"required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "KaraokeArea": {
         "dataType": "refObject",
         "properties": {
             "id": {"dataType":"string","required":true},
             "title": {"dataType":"string"},
-            "currentSong": {"ref":"Spotify.Track"},
+            "currentSong": {"dataType":"string"},
             "songQueue": {"dataType":"array","array":{"dataType":"string"},"required":true},
-            "isPlaying": {"dataType":"boolean","required":true},
+            "isSongPlaying": {"dataType":"boolean","required":true},
             "elapsedTimeSec": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "SongSchema": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "ratings": {"dataType":"nestedObjectLiteral","nestedProperties":{"1":{"dataType":"double","required":true},"2":{"dataType":"double","required":true},"3":{"dataType":"double","required":true},"4":{"dataType":"double","required":true},"5":{"dataType":"double","required":true}},"required":true},
+            "reactions": {"dataType":"nestedObjectLiteral","nestedProperties":{"dislikes":{"dataType":"double","required":true},"likes":{"dataType":"double","required":true}},"required":true},
         },
         "additionalProperties": false,
     },
@@ -336,6 +296,89 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.createKaraokeArea.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.patch('/towns/:townID/songRating',
+            ...(fetchMiddlewares<RequestHandler>(TownsController)),
+            ...(fetchMiddlewares<RequestHandler>(TownsController.prototype.updateSongRating)),
+
+            function TownsController_updateSongRating(request: any, response: any, next: any) {
+            const args = {
+                    townID: {"in":"path","name":"townID","required":true,"dataType":"string"},
+                    songID: {"in":"query","name":"songID","required":true,"dataType":"string"},
+                    rating: {"in":"query","name":"rating","required":true,"dataType":"union","subSchemas":[{"dataType":"enum","enums":[1]},{"dataType":"enum","enums":[2]},{"dataType":"enum","enums":[3]},{"dataType":"enum","enums":[4]},{"dataType":"enum","enums":[5]}]},
+                    sessionToken: {"in":"header","name":"X-Session-Token","required":true,"dataType":"string"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new TownsController();
+
+
+              const promise = controller.updateSongRating.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.patch('/towns/:townID/songReaction',
+            ...(fetchMiddlewares<RequestHandler>(TownsController)),
+            ...(fetchMiddlewares<RequestHandler>(TownsController.prototype.updateSongReaction)),
+
+            function TownsController_updateSongReaction(request: any, response: any, next: any) {
+            const args = {
+                    townID: {"in":"path","name":"townID","required":true,"dataType":"string"},
+                    songID: {"in":"query","name":"songID","required":true,"dataType":"string"},
+                    reaction: {"in":"query","name":"reaction","required":true,"dataType":"union","subSchemas":[{"dataType":"enum","enums":["likes"]},{"dataType":"enum","enums":["dislikes"]}]},
+                    sessionToken: {"in":"header","name":"X-Session-Token","required":true,"dataType":"string"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new TownsController();
+
+
+              const promise = controller.updateSongReaction.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/towns/:townID/songInfo',
+            ...(fetchMiddlewares<RequestHandler>(TownsController)),
+            ...(fetchMiddlewares<RequestHandler>(TownsController.prototype.getSongInfo)),
+
+            function TownsController_getSongInfo(request: any, response: any, next: any) {
+            const args = {
+                    townID: {"in":"path","name":"townID","required":true,"dataType":"string"},
+                    songID: {"in":"query","name":"songID","required":true,"dataType":"string"},
+                    sessionToken: {"in":"header","name":"X-Session-Token","required":true,"dataType":"string"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new TownsController();
+
+
+              const promise = controller.getSongInfo.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);

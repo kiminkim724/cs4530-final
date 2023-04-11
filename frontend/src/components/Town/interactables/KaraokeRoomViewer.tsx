@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useInteractable, useKaraokeAreaController } from '../../../classes/TownController';
 import KaraokeAreaController, { useTitle } from '../../../classes/KaraokeAreaController';
 import useTownController from '../../../hooks/useTownController';
@@ -24,25 +24,55 @@ export function KaraokeRoom({
   isOpen: boolean;
   close: () => void;
 }): JSX.Element {
-  const townController = useTownController();
   const title = useTitle(controller);
+  const townController = useTownController();
+  const [player, setPlayer] = useState<Spotify.Player>();
+  const [intervalID, setIntervalID] = useState<NodeJS.Timer>();
+  const intervalRef = useRef(intervalID);
+  const playerRef = useRef(player);
+  const setMyPlayer = (data: Spotify.Player) => {
+    playerRef.current = data;
+    setPlayer(data);
+  };
+  const setMyIntervalID = (data: NodeJS.Timer) => {
+    intervalRef.current = data;
+    setIntervalID(data);
+  };
   console.log(title);
   console.log('first test');
-  console.log(townController.karaokeAreas);
   const token = localStorage.getItem('access-token');
+  console.log(controller);
+  useEffect(() => {}, [intervalID, player]);
+
+  useEffect(() => {
+    console.log('enter');
+    return () => {
+      console.log('leave');
+      console.log(playerRef.current);
+      console.log(intervalRef.current);
+      clearInterval(intervalRef.current);
+      playerRef.current?.disconnect();
+      playerRef.current?.removeListener('not_ready');
+      playerRef.current?.removeListener('ready');
+      playerRef.current?.removeListener('player_state_changed');
+    };
+  }, []);
 
   if (token) {
     return (
       <WebPlayback
         isOpen={isOpen}
         onClose={() => {
-          close();
           townController.unPause();
+          close();
         }}
         title={title}
         token={token}
         controller={controller}
-        townController={townController}
+        player={playerRef.current}
+        setPlayer={setMyPlayer}
+        intervalID={intervalRef.current}
+        setIntervalID={setMyIntervalID}
       />
     );
   } else {
@@ -64,7 +94,10 @@ export function KaraokeViewer({
   const karaokeAreaController = useKaraokeAreaController(karaokeArea.name);
   // console.log('122');
   const [selectIsOpen, setSelectIsOpen] = useState(karaokeAreaController.title == undefined);
+  karaokeAreaController.title = 'Karaoke Area';
   const karaokeRoomTitle = useTitle(karaokeAreaController);
+
+  console.log(karaokeAreaController);
 
   useEffect(() => {
     // console.log('125');
@@ -107,6 +140,7 @@ export function KaraokeViewer({
         isOpen={!selectIsOpen}
         close={() => {
           setSelectIsOpen(false);
+          console.log('close');
           // forces game to emit "karaokeArea" event again so that
           // repoening the modal works as expected
           townController.interactEnd(karaokeArea);

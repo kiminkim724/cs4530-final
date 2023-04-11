@@ -23,8 +23,8 @@ import {
   SocketData,
   ViewingArea,
   PosterSessionArea,
+  KaraokeArea,
 } from './types/CoveyTownSocket';
-import KaraokeArea from './town/KaraokeArea';
 
 /**
  * Create a new conversation area using some random defaults
@@ -210,5 +210,5 @@ export function isConversationArea(interactable: Interactable): interactable is 
 }
 
 export function isKaraokeArea(interactable: Interactable): interactable is KaraokeArea {
-  return 'songQueue' in interactable;
+  return 'isSongPlaying' in interactable;
 }

@@ -9,13 +9,13 @@ import {
 import InteractableArea from './InteractableArea';
 
 export default class KaraokeArea extends InteractableArea {
-  private _currentSong?: Spotify.Track;
+  private _currentSong?: string;
 
   private _title?: string;
 
   private _songQueue: string[];
 
-  private _isPlaying: boolean;
+  private _isSongPlaying: boolean;
 
   private _elapsedTimeSec: number;
 
@@ -35,8 +35,8 @@ export default class KaraokeArea extends InteractableArea {
     return this._elapsedTimeSec;
   }
 
-  public get isPlaying() {
-    return this._isPlaying;
+  public get isSongPlaying() {
+    return this._isSongPlaying;
   }
 
   /**
@@ -47,16 +47,23 @@ export default class KaraokeArea extends InteractableArea {
    * @param townEmitter a broadcast emitter that can be used to emit updates to players
    */
   public constructor(
-    { id, isPlaying, elapsedTimeSec: progress, currentSong, title }: KaraokeAreaModel,
+    {
+      id,
+      isSongPlaying: isPlaying,
+      elapsedTimeSec: progress,
+      currentSong,
+      title,
+      songQueue,
+    }: KaraokeAreaModel,
     coordinates: BoundingBox,
     townEmitter: TownEmitter,
   ) {
     super(id, coordinates, townEmitter);
     this._currentSong = currentSong;
     this._title = title;
-    this._songQueue = [];
+    this._songQueue = songQueue;
     this._elapsedTimeSec = progress;
-    this._isPlaying = isPlaying;
+    this._isSongPlaying = isPlaying;
   }
 
   /**
@@ -70,6 +77,8 @@ export default class KaraokeArea extends InteractableArea {
   public remove(player: Player): void {
     super.remove(player);
     if (this._occupants.length === 0) {
+      this._isSongPlaying = false;
+      this._elapsedTimeSec = 0;
       this._currentSong = undefined;
       this._title = undefined;
       this._songQueue = [];
@@ -83,7 +92,7 @@ export default class KaraokeArea extends InteractableArea {
    * @param karaokeArea updated model
    */
   public updateModel({
-    isPlaying,
+    isSongPlaying: isPlaying,
     elapsedTimeSec: progress,
     currentSong,
     title,
@@ -92,7 +101,7 @@ export default class KaraokeArea extends InteractableArea {
     this._currentSong = currentSong;
     this._title = title;
     this._songQueue = songQueue;
-    this._isPlaying = isPlaying;
+    this._isSongPlaying = isPlaying;
     this._elapsedTimeSec = progress;
   }
 
@@ -103,10 +112,11 @@ export default class KaraokeArea extends InteractableArea {
   public toModel(): KaraokeAreaModel {
     return {
       id: this.id,
-      currentSong: this._currentSong,
-      songQueue: this._songQueue,
-      isPlaying: this._isPlaying,
+      isSongPlaying: this._isSongPlaying,
       elapsedTimeSec: this._elapsedTimeSec,
+      currentSong: this._currentSong,
+      title: this._title,
+      songQueue: this._songQueue,
     };
   }
 
@@ -123,7 +133,7 @@ export default class KaraokeArea extends InteractableArea {
     }
     const rect: BoundingBox = { x: mapObject.x, y: mapObject.y, width, height };
     return new KaraokeArea(
-      { isPlaying: false, id: name, elapsedTimeSec: 0, songQueue: [] },
+      { isSongPlaying: false, id: name, elapsedTimeSec: 0, songQueue: [] },
       rect,
       townEmitter,
     );

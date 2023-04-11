@@ -9,7 +9,7 @@ import ViewingArea from '../components/Town/interactables/ViewingArea';
 import PosterSesssionArea from '../components/Town/interactables/PosterSessionArea';
 import KaraokeArea from '../components/Town/interactables/KaraokeArea';
 import { LoginController } from '../contexts/LoginControllerContext';
-import { TownsService, TownsServiceClient } from '../generated/client';
+import { SongSchema, TownsService, TownsServiceClient } from '../generated/client';
 import useTownController from '../hooks/useTownController';
 import {
   ChatMessage,
@@ -569,8 +569,6 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    * @param newArea
    */
   async createKaraokeArea(newArea: KaraokeAreaModel) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     await this._townsService.createKaraokeArea(this.townID, this.sessionToken, newArea);
   }
 
@@ -689,7 +687,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
         id: karaokeArea.name,
         title: karaokeArea.defaultTitle,
         songQueue: [],
-        isPlaying: false,
+        isSongPlaying: false,
         elapsedTimeSec: 0,
       });
       this._karaokeAreas.push(newController);
@@ -783,26 +781,42 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   /**
    * Update the song rating or add new rating for unrated song (specified via karaoke area controller)
    * @param karaokeArea the poster session area controller
-   * @returns a promise wrapping the new number of stars the poster has
+   * @param songID the song to add a rating to
+   * @returns a promise to complete
    */
   public async updateKaraokeAreaSongRating(
     karaokeArea: KaraokeAreaController,
     songID: string,
     rating: 1 | 2 | 3 | 4 | 5,
   ): Promise<void> {
-    return this._townsService.updateSongRating(this.townID, this.sessionToken, songID, rating);
+    return this._townsService.updateSongRating(this.townID, songID, rating, this.sessionToken);
   }
 
   /**
-   *  Gets the song information of a given karaoke area in a given town, based on the song id (specified via karaoke area controller)
+   * Update the song reaction or add new reaction for unreacted song
    * @param karaokeArea the poster session area controller
-   * @returns a promise wrapping the new number of stars the poster has
+   * @param songID the song to add a reaction to
+   * @returns a promise to complete
+   */
+  public async updateKaraokeAreaSongReaction(
+    karaokeArea: KaraokeAreaController,
+    songID: string,
+    reaction: 'likes' | 'dislikes',
+  ): Promise<void> {
+    return this._townsService.updateSongReaction(this.townID, songID, reaction, this.sessionToken);
+  }
+
+  /**
+   *  Gets the song information about a song from the database, based on the song id
+   * @param karaokeArea the poster session area controller
+   * @param songID the id of the song to get info about
+   * @returns a promise wrapping the information about the song
    */
   public async getKaraokeAreaSongInfo(
     karaokeArea: KaraokeAreaController,
     songID: string,
-  ): Promise<string> {
-    return this._townsService.getSongInfo(this.townID, this.sessionToken, songID);
+  ): Promise<SongSchema> {
+    return this._townsService.getSongInfo(this.townID, songID, this.sessionToken);
   }
 
   /**
