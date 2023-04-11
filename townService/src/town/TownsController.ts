@@ -215,11 +215,10 @@ export class TownsController extends Controller {
    * @throws InvalidParametersError if the session token is not valid, or if the
    *          karaoke session specified does not exist
    */
-  @Patch('{townID}/{karaokeAreaId}/songRating')
+  @Patch('{townID}/songRating')
   @Response<InvalidParametersError>(400, 'Invalid values specified')
   public async updateSongRating(
     @Path() townID: string,
-    @Path() karaokeAreaId: string,
     @Query() songID: string,
     @Query() rating: 1 | 2 | 3 | 4 | 5,
     @Header('X-Session-Token') sessionToken: string,
@@ -230,10 +229,6 @@ export class TownsController extends Controller {
     }
     if (!curTown.getPlayerBySessionToken(sessionToken)) {
       throw new InvalidParametersError('Invalid session ID');
-    }
-    const karaokeArea = curTown.getInteractable(karaokeAreaId);
-    if (!karaokeArea || !isKaraokeArea(karaokeArea)) {
-      throw new InvalidParametersError('Invalid poster session ID');
     }
     const karaokeDao = new KaraokeDao();
     const success = karaokeDao.addRatingToSong(songID, rating);
@@ -253,14 +248,13 @@ export class TownsController extends Controller {
    * @throws InvalidParametersError if the session token is not valid, or if the
    *          karaoke area specified does not exist
    */
-  @Get('{townID}/{karaokeAreaId}/songInfo')
+  @Get('{townID}/songInfo')
   @Response<InvalidParametersError>(400, 'Invalid values specified')
   public async getSongInfo(
     @Path() townID: string,
-    @Path() karaokeAreaId: string,
     @Query() songID: string,
     @Header('X-Session-Token') sessionToken: string,
-  ): Promise<SongSchema | undefined> {
+  ): Promise<SongSchema> {
     const curTown = this._townsStore.getTownByID(townID);
     if (!curTown) {
       throw new InvalidParametersError('Invalid town ID');
@@ -268,12 +262,8 @@ export class TownsController extends Controller {
     if (!curTown.getPlayerBySessionToken(sessionToken)) {
       throw new InvalidParametersError('Invalid session ID');
     }
-    const karaokeArea = curTown.getInteractable(karaokeAreaId);
-    if (!karaokeArea || !isKaraokeArea(karaokeArea)) {
-      throw new InvalidParametersError('Invalid poster session ID');
-    }
     const karaokeDao = new KaraokeDao();
-    const success = karaokeDao.getSongInfo(songID);
+    const success = await karaokeDao.getSongInfo(songID);
     if (!success) {
       throw new Error('Fail to get song info');
     } else {

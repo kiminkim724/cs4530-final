@@ -790,13 +790,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     songID: string,
     rating: 1 | 2 | 3 | 4 | 5,
   ): Promise<void> {
-    return this._townsService.updateSongRating(
-      this.townID,
-      karaokeArea.id,
-      this.sessionToken,
-      songID,
-      rating,
-    );
+    return this._townsService.updateSongRating(this.townID, this.sessionToken, songID, rating);
   }
 
   /**
@@ -807,8 +801,8 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   public async getKaraokeAreaSongInfo(
     karaokeArea: KaraokeAreaController,
     songID: string,
-  ): Promise<SongSchema> {
-    return this._townsService.getSongInfo(this.townID, karaokeArea.id, this.sessionToken, songID);
+  ): Promise<string> {
+    return this._townsService.getSongInfo(this.townID, this.sessionToken, songID);
   }
 
   /**

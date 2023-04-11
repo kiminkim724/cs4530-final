@@ -12,4 +12,3 @@ export type KaraokeArea = {
     isPlaying: boolean;
     elapsedTimeSec: number;
 };
-

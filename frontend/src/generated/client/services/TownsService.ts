@@ -233,22 +233,19 @@ export class TownsService {
 
     /**
      * @param townId
-     * @param karaokeAreaId
      * @param xSessionToken
      * @returns void
      * @throws ApiError
      */
     public spotifyClientCredentials(
         townId: string,
-        karaokeAreaId: string,
         xSessionToken: string,
     ): CancelablePromise<void> {
         return this.httpRequest.request({
             method: 'GET',
-            url: '/towns/{townID}/{karaokeAreaId}/clientCredentials',
+            url: '/towns/{townID}/clientCredentials',
             path: {
                 'townID': townId,
-                'karaokeAreaId': karaokeAreaId,
             },
             headers: {
                 'X-Session-Token': xSessionToken,
@@ -271,17 +268,15 @@ export class TownsService {
      */
         public updateSongRating(
             townId: string,
-            karaokeAreaId: string,
             xSessionToken: string,
             songID: string,
             rating: 1 | 2 | 3 | 4 | 5,
         ): CancelablePromise<void> {
             return this.httpRequest.request({
                 method: 'PATCH',
-                url: '/towns/{townID}/{karaokeAreaId}/songRating',
+                url: '/towns/{townID}/songRating',
                 path: {
                     'townID': townId,
-                    'posterSessionId': karaokeAreaId,
                 },
                 query: {
                     'songID' : songID,
@@ -308,16 +303,14 @@ export class TownsService {
      */
         public getSongInfo(
             townId: string,
-            karaokeAreaId: string,
             xSessionToken: string,
             songID: string,
-        ): CancelablePromise<SongSchema> {
+        ): CancelablePromise<string> {
             return this.httpRequest.request({
                 method: 'PATCH',
-                url: '/towns/{townID}/{karaokeAreaId}/songInfo',
+                url: '/towns/{townID}/songInfo',
                 path: {
                     'townID': townId,
-                    'posterSessionId': karaokeAreaId,
                 },
                 query: {
                     'songID' : songID,

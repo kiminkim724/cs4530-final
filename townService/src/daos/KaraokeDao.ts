@@ -53,10 +53,29 @@ export default class KaraokeDao {
     }
   }
 
+  /**
+   * Retrieves rating and reaction information about a song from the database. If the song does not yet
+   * have a document in the database, a document with zeroes for all values is returned.
+   * @param songID the id of the song
+   * @returns the rating and reaction information
+   */
   public async getSongInfo(songID: string): Promise<SongSchema> {
     const data = await this._songModel.findOne({ id: songID });
     if (!data) {
-      throw new Error('Song does not exist in database.');
+      return {
+        id: songID,
+        ratings: {
+          1: 0,
+          2: 0,
+          3: 0,
+          4: 0,
+          5: 0,
+        },
+        reactions: {
+          likes: 0,
+          dislikes: 0,
+        },
+      };
     }
     const ret: SongSchema = {
       id: data.toJSON().id,

@@ -34,20 +34,20 @@ const fetchPlus: (
   options: RequestInit,
   retries: number,
 ) =>
-    fetch(url, options)
-      .then(res => {
-        if (res.ok) {
-          return res;
-        }
-        if (retries > 0) {
-          console.log('retrying');
-          setTimeout(() => {
-            return fetchPlus(url, options, retries - 1);
-          }, 1000);
-        }
-        //throw new Error(res.status)
-      })
-      .catch(error => console.error(error.message));
+  fetch(url, options)
+    .then(res => {
+      if (res.ok) {
+        return res;
+      }
+      if (retries > 0) {
+        console.log('retrying');
+        setTimeout(() => {
+          return fetchPlus(url, options, retries - 1);
+        }, 1000);
+      }
+      //throw new Error(res.status)
+    })
+    .catch(error => console.error(error.message));
 
 function millisToMinutesAndSeconds(millis: number): string {
   const minutes = Math.floor(millis / 60000);
@@ -65,7 +65,9 @@ function WebPlayback(props: {
 }): JSX.Element {
   const [isPlaying, setPlaying] = useState<boolean>(props.controller.isPlaying);
   const [player, setPlayer] = useState<Spotify.Player>();
-  const [currentTrack, setTrack] = useState<Spotify.Track | undefined>(props.controller.currentSong);
+  const [currentTrack, setTrack] = useState<Spotify.Track | undefined>(
+    props.controller.currentSong,
+  );
   /*const [currentQueue, setQueue] = useState([
     '7ouMYWpwJ422jRcDASZB7P',
     '4VqPOruhp5EdPBeR92t6lQ',
@@ -158,8 +160,8 @@ function WebPlayback(props: {
     const progressListener = (newTime: number) => {
       player?.getCurrentState().then(state => {
         if (state) {
-          const currentTime = state.position;
-          if (currentTime !== undefined && Math.abs(currentTime - newTime) > ALLOWED_DRIFT) {
+          const currTime = state.position;
+          if (currTime !== undefined && Math.abs(currTime - newTime) > ALLOWED_DRIFT) {
             player.seek(newTime * 1000);
           }
         }
@@ -177,9 +179,9 @@ function WebPlayback(props: {
     };
   }, [props.controller]);
 
-  useEffect(() => { }, [currentTrack, currentTime]);
+  useEffect(() => {}, [currentTrack, currentTime]);
 
-  useEffect(() => { }, [intervalID]);
+  useEffect(() => {}, [intervalID]);
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -213,7 +215,10 @@ function WebPlayback(props: {
           return;
         }
 
-        if (props.controller.currentSong && state.track_window.current_track.id != props.controller.currentSong.id) {
+        if (
+          props.controller.currentSong &&
+          state.track_window.current_track.id != props.controller.currentSong.id
+        ) {
           if (props.controller.currentSong.id) {
             playSong(props.controller.currentSong.id);
           }
@@ -303,8 +308,8 @@ function WebPlayback(props: {
                   <div className='now-playing__artist'>
                     {currentTrack
                       ? millisToMinutesAndSeconds(currentTime) +
-                      '/' +
-                      millisToMinutesAndSeconds(currentTrack.duration_ms)
+                        '/' +
+                        millisToMinutesAndSeconds(currentTrack.duration_ms)
                       : 'N/A'}
                   </div>
 
