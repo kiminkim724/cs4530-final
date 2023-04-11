@@ -1,5 +1,5 @@
 import { Modal, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/react';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import KaraokeAreaController from '../../../classes/KaraokeAreaController';
 import useTownController from '../../../hooks/useTownController';
 import Searcher from './KaraokeAreaComponents/Searcher';
@@ -51,7 +51,6 @@ function WebPlayback(props: {
   setIntervalID: (data: NodeJS.Timer) => void;
 }): JSX.Element {
   const townController = useTownController();
-  const [isPlaying, setPlaying] = useState<boolean>(props.controller.isPlaying);
   const [currentTrack, setTrack] = useState<Spotify.Track | undefined>();
   const [currentTime, setTime] = useState<number>(props.controller.elapsedTimeSec);
   const [currentQueue, setQueue] = useState<string[]>(props.controller.songQueue);
@@ -70,46 +69,49 @@ function WebPlayback(props: {
     setTime(data);
   };
 
-  const playSong = async (id: string | undefined) => {
-    if (id === undefined) {
-      console.log('ID is undefined');
-      return;
-    }
-    await fetchPlus(
-      `https://api.spotify.com/v1/tracks/${id}`,
-      {
-        method: 'GET',
-        headers: {
-          'authorization': `Bearer${props.token}`,
-          'Content-Type': 'application/json',
-        },
-      },
-      3,
-    ).then(response => {
-      response?.json().then(async (result: Spotify.Track) => {
-        console.log(props.controller.elapsedTimeSec * 1000);
-        setMyTrack(result);
-        await fetchPlus(
-          `https://api.spotify.com/v1/me/player/play`,
-          {
-            method: 'PUT',
-            headers: {
-              'authorization': `Bearer ${props.token}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              device_id: deviceID,
-              uris: [result.uri],
-              position_ms: props.controller.elapsedTimeSec * 1000,
-            }),
+  const playSong = useCallback(
+    async (id: string | undefined) => {
+      if (id === undefined) {
+        console.log('ID is undefined');
+        return;
+      }
+      await fetchPlus(
+        `https://api.spotify.com/v1/tracks/${id}`,
+        {
+          method: 'GET',
+          headers: {
+            'authorization': `Bearer${props.token}`,
+            'Content-Type': 'application/json',
           },
-          3,
-        ).catch(error => console.log(error));
-        props.controller.isPlaying = true;
-        townController.emitKaraokeAreaUpdate(props.controller);
+        },
+        3,
+      ).then(response => {
+        response?.json().then(async (result: Spotify.Track) => {
+          console.log(props.controller.elapsedTimeSec * 1000);
+          setMyTrack(result);
+          await fetchPlus(
+            `https://api.spotify.com/v1/me/player/play`,
+            {
+              method: 'PUT',
+              headers: {
+                'authorization': `Bearer ${props.token}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                device_id: deviceID,
+                uris: [result.uri],
+                position_ms: props.controller.elapsedTimeSec * 1000,
+              }),
+            },
+            3,
+          ).catch(error => console.log(error));
+          props.controller.isPlaying = true;
+          townController.emitKaraokeAreaUpdate(props.controller);
+        });
       });
-    });
-  };
+    },
+    [deviceID, props.controller, props.token, townController],
+  );
 
   function transferPlaybackHere(device_id: string) {
     // https://beta.developer.spotify.com/documentation/web-api/reference/player/transfer-a-users-playback/
@@ -178,16 +180,14 @@ function WebPlayback(props: {
     };
 
     props.controller.addListener('progressChange', progressListener);
-    props.controller.addListener('playbackChange', setPlaying);
     props.controller.addListener('songChange', playSong);
     props.controller.addListener('songQueueChange', setQueue);
     return () => {
-      props.controller.removeListener('playbackChange', setPlaying);
       props.controller.removeListener('progressChange', progressListener);
       props.controller.removeListener('songQueueChange', setQueue);
       props.controller.removeListener('songChange', playSong);
     };
-  }, [props.controller]);
+  }, [props.controller, playSong, props.player]);
 
   useEffect(() => {}, [currentTrack, currentTime]);
 
@@ -236,8 +236,6 @@ function WebPlayback(props: {
             props.controller.isPlaying = false;
             townController.emitKaraokeAreaUpdate(props.controller);
           }
-        } else {
-          setPlaying(true);
         }
       });
 

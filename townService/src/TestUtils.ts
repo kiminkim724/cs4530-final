@@ -23,8 +23,8 @@ import {
   SocketData,
   ViewingArea,
   PosterSessionArea,
+  KaraokeArea,
 } from './types/CoveyTownSocket';
-import KaraokeArea from './town/KaraokeArea';
 
 /**
  * Create a new conversation area using some random defaults
