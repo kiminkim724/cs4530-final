@@ -47,11 +47,7 @@ function SongQueue(props: { queue: string[]; token: string }) {
   return (
     <>
       <Col className='ml-2 mt-2'>
-        {songQueue ? (
-          <h2 className='text-center'>Song Queue:</h2>
-        ) : (
-          <h2 className='text-center'>No songs in queue</h2>
-        )}
+        {songQueue.length > 0 ? <h2 className='text-center'>Song Queue:</h2> : <></>}
       </Col>
       <Col xs={10}>
         <CardGroup className='m-2 d-block'>

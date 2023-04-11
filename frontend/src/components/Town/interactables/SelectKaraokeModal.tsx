@@ -29,14 +29,11 @@ export default function SelectKaraokeModal({
 }): JSX.Element {
   const coveyTownController = useTownController();
   const karaokeAreaController = useKaraokeAreaController(karaokeArea?.id);
-  console.log('first?'); // LOOK HERE FIRST
   const [title, setTitle] = useState<string | undefined>(karaokeArea?.defaultTitle || '');
-  // const [posterFileContents, setImageContents] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (isOpen) {
       coveyTownController.pause();
-      console.log('isOpen');
     } else {
       coveyTownController.unPause();
     }
@@ -44,7 +41,6 @@ export default function SelectKaraokeModal({
 
   const closeModal = useCallback(() => {
     coveyTownController.unPause();
-    console.log('isClosed');
     close();
   }, [coveyTownController, close]);
 
