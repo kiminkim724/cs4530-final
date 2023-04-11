@@ -57,6 +57,26 @@ export default class KaraokeDao {
     };
   }
 
+  private async _getRatings(songID: number): Promise<number> {
+    const data = await this._songModel.findOne({ id: songID });
+    let result = 0;
+    if (data) {
+      Object.values(data.ratings).forEach(rating => {
+        result += rating;
+      });
+    }
+    return result;
+  }
+
+  public async getTopSongs(n: number): Promise<SongSchema[]> {
+    const songs = await this._songModel.find();
+    const ratings = await Promise.all(songs.map(song => this._getRatings(song.id)));
+    const songsByRating = songs.sort(
+      (a, b) => ratings[songs.indexOf(b)] - ratings[songs.indexOf(a)],
+    );
+    return songsByRating.slice(0, n);
+  }
+
   public async addReactionToSong(songID: string, reaction: 'likes' | 'dislikes') {
     const data = await this._songModel.findOne({ id: songID });
     if (!data) {
