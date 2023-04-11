@@ -214,8 +214,7 @@ function WebPlayback(props: {
 
   useEffect(() => {}, [currentTrack, currentTime]);
 
-  useEffect(() => {
-  }, [props.intervalID]);
+  useEffect(() => {}, [props.intervalID]);
 
   useEffect(() => {
     const script = document.createElement('script');
