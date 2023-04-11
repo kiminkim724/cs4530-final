@@ -318,13 +318,13 @@ state: string,
     }
 
     /**
-     * @param codeVerifier
-     * @returns void
+     * @param codeVerifier 
+     * @returns void 
      * @throws ApiError
      */
     public spotifyCallback(
-        codeVerifier: string,
-    ): CancelablePromise<void> {
+codeVerifier: string,
+): CancelablePromise<void> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/towns/callback',
@@ -335,17 +335,17 @@ state: string,
     }
 
     /**
-     * @param townId
-     * @param karaokeSessionId
-     * @param xSessionToken
-     * @returns void
+     * @param townId 
+     * @param karaokeSessionId 
+     * @param xSessionToken 
+     * @returns void 
      * @throws ApiError
      */
     public spotifyClientCredentials(
-        townId: string,
-        karaokeSessionId: string,
-        xSessionToken: string,
-    ): CancelablePromise<void> {
+townId: string,
+karaokeSessionId: string,
+xSessionToken: string,
+): CancelablePromise<void> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/towns/{townID}/{karaokeSessionId}/clientCredentials',

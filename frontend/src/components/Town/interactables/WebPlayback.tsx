@@ -64,7 +64,7 @@ function WebPlayback(props: {
   const [currentQueue, setQueue] = useState<string[]>(props.controller.songQueue);
   const [deviceID, setDeviceID] = useState('');
   const [stars, setStars] = useState<0 | 1 | 2 | 3 | 4 | 5>(0);
-  const [rating, setRating] = useState(0.0);
+  const [rating, setRating] = useState<number>(0.0);
   const [likes, setLikes] = useState(0);
   const [dislikes, setDislikes] = useState(0);
   const [liked, setLiked] = useState(false);
@@ -91,20 +91,28 @@ function WebPlayback(props: {
         return;
       }
       const songInfo = await townController.getKaraokeAreaSongInfo(props.controller, id);
-      const newRating =
-        (songInfo.ratings[1] * 1 +
-          songInfo.ratings[2] * 2 +
-          songInfo.ratings[3] * 3 +
-          songInfo.ratings[4] * 4 +
-          songInfo.ratings[5] * 5) /
-        (songInfo.ratings[1] +
-          songInfo.ratings[2] +
-          songInfo.ratings[3] +
-          songInfo.ratings[4] +
-          songInfo.ratings[5]);
-      setRating(newRating);
+      const numRatings =
+        songInfo.ratings[1] +
+        songInfo.ratings[2] +
+        songInfo.ratings[3] +
+        songInfo.ratings[4] +
+        songInfo.ratings[5];
+      if (numRatings === 0) {
+        setRating(0);
+      } else {
+        const newRating =
+          ((songInfo.ratings[1] * 1 +
+            songInfo.ratings[2] * 2 +
+            songInfo.ratings[3] * 3 +
+            songInfo.ratings[4] * 4 +
+            songInfo.ratings[5] * 5) *
+            1.0) /
+          numRatings;
+        setRating(newRating);
+      }
       setLikes(songInfo.reactions.likes);
       setDislikes(songInfo.reactions.dislikes);
+      setStars(0);
       setLiked(false);
       setDisliked(false);
       await fetchPlus(
@@ -399,11 +407,11 @@ function WebPlayback(props: {
                             playNextSong();
                           }}
                         />
-                        <div>Rating: {rating}</div>
+                        <div>Rating: {rating.toPrecision(2)}</div>
                         <div>
                           {[1, 2, 3, 4, 5].map(num => (
-                            // eslint-disable-next-line react/jsx-key
                             <FontAwesomeIcon
+                              key={num}
                               onClick={() => {
                                 handleStars(num as 1 | 2 | 3 | 4 | 5);
                               }}

@@ -195,17 +195,6 @@ export default function TownSelection(): JSX.Element {
               </Button>
             )}
           </Box>
-          <Box>
-            {localStorage.getItem('access-token') ? (
-              <Heading as='h2' size='lg'>
-                Logged into Spotify
-              </Heading>
-            ) : (
-              <Button data-testid='spotifyLogin' onClick={handleSpotifyLogin}>
-                Login to Spotify
-              </Button>
-            )}
-          </Box>
           <Box p='4' borderWidth='1px' borderRadius='lg'>
             <Heading as='h2' size='lg'>
               Select a username
