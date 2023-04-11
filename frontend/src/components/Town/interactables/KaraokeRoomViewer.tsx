@@ -110,15 +110,11 @@ export function KaraokeViewer({
   console.log(karaokeAreaController);
 
   useEffect(() => {
-    // console.log('125');
     const setTitle = (title: string | undefined) => {
       if (!title) {
-        // console.log('126');
         townController.interactableEmitter.emit('endIteraction', karaokeAreaController);
       } else {
-        // console.log('127');
         karaokeAreaController.title = title;
-        console.log(title);
       }
     };
     karaokeAreaController.addListener('karaokeTitleChange', setTitle);
@@ -129,7 +125,6 @@ export function KaraokeViewer({
   }, [karaokeAreaController, townController]);
   if (!karaokeRoomTitle) {
     console.log(karaokeRoomTitle);
-    console.log('shouldnt go here');
     return (
       <SelectKaraokeModal
         isOpen={selectIsOpen}

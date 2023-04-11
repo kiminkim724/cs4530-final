@@ -215,7 +215,6 @@ function WebPlayback(props: {
   useEffect(() => {}, [currentTrack, currentTime]);
 
   useEffect(() => {
-    console.log(props.intervalID);
   }, [props.intervalID]);
 
   useEffect(() => {
@@ -265,13 +264,10 @@ function WebPlayback(props: {
       tempPlayer.connect();
 
       const interval = setInterval(() => {
-        console.log(tempPlayer);
         tempPlayer.getCurrentState().then(state => {
-          console.log(state);
           if (state) {
             setMyTime(state.position);
             const currTime = Math.floor(state.position / 1000);
-            console.log(currTime);
             if (currTime != 0 && currTime != props.controller.elapsedTimeSec) {
               props.controller.elapsedTimeSec = currTime;
               townController.emitKaraokeAreaUpdate(props.controller);
@@ -279,7 +275,6 @@ function WebPlayback(props: {
           }
         });
       }, 1000);
-      console.log(interval);
       props.setIntervalID(interval);
       return () => {
         console.log('test');
