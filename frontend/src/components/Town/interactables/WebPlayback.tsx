@@ -32,7 +32,6 @@ const fetchPlus: (
         return res;
       }
       if (retries > 0) {
-        console.log('retrying');
         setTimeout(() => {
           return fetchPlus(url, options, retries - 1);
         }, 1000);
@@ -87,7 +86,6 @@ function WebPlayback(props: {
   const playSong = useCallback(
     async (id: string | undefined) => {
       if (id === undefined) {
-        console.log('ID is undefined');
         return;
       }
       const songInfo = await townController.getKaraokeAreaSongInfo(props.controller, id);
@@ -127,7 +125,6 @@ function WebPlayback(props: {
         3,
       ).then(response => {
         response?.json().then(async (result: Spotify.Track) => {
-          console.log(props.controller.elapsedTimeSec * 1000);
           setMyTrack(result);
           await fetchPlus(
             `https://api.spotify.com/v1/me/player/play`,
@@ -155,7 +152,6 @@ function WebPlayback(props: {
 
   function transferPlaybackHere(device_id: string) {
     // https://beta.developer.spotify.com/documentation/web-api/reference/player/transfer-a-users-playback/
-    console.log('transferring');
     fetch('https://api.spotify.com/v1/me/player', {
       method: 'PUT',
       headers: {
@@ -170,7 +166,6 @@ function WebPlayback(props: {
       }),
     }).then(() => {
       playSong(props.controller.currentSong);
-      console.log('transferred');
     });
   }
 
@@ -180,9 +175,7 @@ function WebPlayback(props: {
         title: `Song already in queue`,
         status: 'error',
       });
-      console.log('song already in queue');
     } else {
-      console.log('adding song to queue');
       toast({
         title: `Song added to queue`,
         status: 'success',
@@ -195,7 +188,6 @@ function WebPlayback(props: {
   const playNextSong = async () => {
     if (props.controller.songQueue.length > 0) {
       const id = props.controller.songQueue[0];
-      console.log(id);
       toast({
         title: `Song skipped`,
         status: 'success',
@@ -210,7 +202,6 @@ function WebPlayback(props: {
         title: `No songs in queue`,
         status: 'error',
       });
-      console.log('No songs in queue');
     }
   };
 
@@ -262,7 +253,6 @@ function WebPlayback(props: {
   useEffect(() => {}, [currentQueue]);
 
   useEffect(() => {
-    console.log(props.controller);
     const progressListener = (newTime: number) => {
       props.player?.getCurrentState().then(state => {
         if (state) {
@@ -273,7 +263,6 @@ function WebPlayback(props: {
             timeRef.current !== undefined &&
             Math.abs(timeRef.current / 1000 - newTime) > ALLOWED_DRIFT
           ) {
-            console.log('seek');
             props.player?.seek(newTime * 1000);
           }
         }
@@ -300,7 +289,6 @@ function WebPlayback(props: {
     script.async = true;
     document.body.appendChild(script);
     window.onSpotifyWebPlaybackSDKReady = () => {
-      console.log(props.token);
       const tempPlayer = new window.Spotify.Player({
         name: 'Web Playback SDK',
         getOAuthToken: cb => {
@@ -312,7 +300,6 @@ function WebPlayback(props: {
       props.setPlayer(tempPlayer);
 
       tempPlayer.addListener('ready', ({ device_id }: { device_id: string }) => {
-        console.log('Ready with Device ID', device_id);
         setDeviceID(device_id);
         transferPlaybackHere(device_id);
       });
@@ -328,7 +315,6 @@ function WebPlayback(props: {
 
         if (state.position === state.duration) {
           if (currentQueue.length > 0) {
-            console.log('Track ended');
             playNextSong();
           } else {
             props.player?.pause();
@@ -354,7 +340,6 @@ function WebPlayback(props: {
       }, 1000);
       props.setIntervalID(interval);
       return () => {
-        console.log('test');
         props.player?.disconnect();
         clearInterval(interval);
       };

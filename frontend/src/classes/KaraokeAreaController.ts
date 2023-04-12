@@ -95,7 +95,6 @@ export default class KaraokeAreaController extends (EventEmitter as new () => Ty
    * The title assigned to this karaoke area, or undefined if there is not one.
    */
   public get title() {
-    console.log('getting ', this._model.title);
     return this._model.title;
   }
 
@@ -105,7 +104,6 @@ export default class KaraokeAreaController extends (EventEmitter as new () => Ty
    * Changing this value will emit a 'karaokeTitleChange' event to listeners
    */
   public set title(title: string | undefined) {
-    console.log('line 107', this._model.title);
     if (this._model.title !== title) {
       this._model.title = title;
       this.emit('karaokeTitleChange', title);
@@ -196,7 +194,6 @@ export default class KaraokeAreaController extends (EventEmitter as new () => Ty
  * A hook that returns the title for the karaoke area with the given controller
  */
 export function useTitle(controller: KaraokeAreaController): string | undefined {
-  console.log(controller.title, ' xyz');
   const [title, setTitle] = useState(controller.title);
   useEffect(() => {
     controller.addListener('karaokeTitleChange', setTitle);

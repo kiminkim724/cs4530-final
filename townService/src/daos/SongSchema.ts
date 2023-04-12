@@ -1,5 +1,8 @@
 import mongoose from 'mongoose';
 
+/**
+ * Represents a spotify song database document.
+ */
 interface SongSchema {
   id: string;
   ratings: {

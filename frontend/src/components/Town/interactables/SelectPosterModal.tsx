@@ -29,7 +29,6 @@ export default function SelectPosterModal({
 }): JSX.Element {
   const coveyTownController = useTownController();
   const posterSessionAreController = usePosterSessionAreaController(posterSessionArea?.id);
-  console.log('enters poster modal');
   const [title, setTitle] = useState<string | undefined>(posterSessionArea?.defaultTitle || '');
   const [posterFileContents, setImageContents] = useState<string | undefined>(undefined);
 
@@ -66,7 +65,6 @@ export default function SelectPosterModal({
   }
 
   const createPoster = useCallback(async () => {
-    console.log('2');
     if (title && posterSessionAreController && posterFileContents) {
       console.log('posterFileContents: ' + posterFileContents);
       const posterToCreate: PosterSessionAreaModel = {
@@ -77,7 +75,6 @@ export default function SelectPosterModal({
       };
       try {
         await coveyTownController.createPosterSessionArea(posterToCreate);
-        console.log('3');
         toast({
           title: 'Poster Created!',
           status: 'success',
@@ -86,7 +83,6 @@ export default function SelectPosterModal({
         coveyTownController.unPause();
         closeModal();
       } catch (err) {
-        console.log('fail state');
         if (err instanceof Error) {
           toast({
             title: 'Unable to create poster',
@@ -125,7 +121,6 @@ export default function SelectPosterModal({
         <ModalCloseButton />
         <form
           onSubmit={ev => {
-            console.log('5');
             ev.preventDefault();
             createPoster();
           }}>

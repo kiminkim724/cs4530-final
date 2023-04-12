@@ -47,9 +47,7 @@ export default function SelectKaraokeModal({
   const toast = useToast();
 
   const createRoom = useCallback(async () => {
-    console.log('second create?');
     if (title && karaokeAreaController) {
-      console.log('karaoke room name: ' + title);
       const songToSet: KaraokeAreaModel = {
         id: karaokeAreaController.id,
         title: title,
@@ -57,7 +55,6 @@ export default function SelectKaraokeModal({
         isSongPlaying: false,
         elapsedTimeSec: 0,
       };
-      console.log(songToSet);
       try {
         await coveyTownController.createKaraokeArea(songToSet);
         toast({
