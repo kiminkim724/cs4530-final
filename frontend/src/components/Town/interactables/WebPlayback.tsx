@@ -380,7 +380,7 @@ function WebPlayback(props: {
           {<ModalHeader>{props.title} </ModalHeader>}
           <div>
             <div>
-              <Searcher token={props.token} addSong={addSong} />
+              <Searcher token={props.token} addSong={addSong} controller={props.controller} />
             </div>
             <Container>
               <Container>

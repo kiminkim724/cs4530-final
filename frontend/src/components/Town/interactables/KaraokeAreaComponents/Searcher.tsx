@@ -2,8 +2,16 @@
 import React, { SetStateAction, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, InputGroup, FormControl, Button, Row, Card } from 'react-bootstrap';
+import useTownController from '../../../../hooks/useTownController';
+import KaraokeAreaController from '../../../../classes/KaraokeAreaController';
+import { SongSchema } from '../../../../generated/client';
 
-function Searcher(props: { addSong: (id: string) => void; token: string }) {
+function Searcher(props: {
+  addSong: (id: string) => void;
+  token: string;
+  controller: KaraokeAreaController;
+}) {
+  const townController = useTownController();
   const [searchInput, setSearchInput] = useState('');
   const [tracks, setTracks] = useState<Spotify.Track[]>([]);
 
@@ -25,9 +33,30 @@ function Searcher(props: { addSong: (id: string) => void; token: string }) {
         .then(response => response.json())
         .then(data => data.tracks);
 
-      console.log(trackResults);
       setTracks(trackResults.items);
     }
+  };
+  const getRecommendations = async () => {
+    const songs: SongSchema[] = await townController.getKaraokeAreaTopSongs(props.controller, 5);
+    const queryParams = new URLSearchParams({
+      seed_artists: '',
+      seed_genres: '',
+      seed_tracks: songs.map(song => song.id).join(','),
+    });
+    const recommandationSongs = await fetch(
+      `https://api.spotify.com/v1/recommendations?limit=8&${queryParams}`,
+      {
+        method: 'GET',
+        headers: {
+          'authorization': `Bearer ${props.token}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+      .then(response => response.json())
+      .then(data => data.tracks);
+
+    setTracks(recommandationSongs);
   };
 
   return (
@@ -48,14 +77,20 @@ function Searcher(props: { addSong: (id: string) => void; token: string }) {
             }}
           />
           <Button onClick={searchTrack}>Search</Button>
-          <Button
-            className='bg-danger'
-            onClick={() => {
-              setTracks([]);
-              setSearchInput('');
-            }}>
-            Clear
-          </Button>
+          {tracks.length > 0 ? (
+            <Button
+              className='bg-danger'
+              onClick={() => {
+                setTracks([]);
+                setSearchInput('');
+              }}>
+              Clear
+            </Button>
+          ) : (
+            <Button className='btn-info' onClick={getRecommendations}>
+              Recommend
+            </Button>
+          )}
         </InputGroup>
       </Container>
       <Container>
