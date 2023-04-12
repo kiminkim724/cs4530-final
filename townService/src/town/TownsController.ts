@@ -212,7 +212,7 @@ export class TownsController extends Controller {
    * Updates the current song rating, or add a rating to an unrated song
    *
    * @param townID ID of the town in which to update the karaoke area image contents
-   * @param karaokeAreaId interactable ID of the karaoke
+   * @param songID ID of the song to update
    * @param sessionToken session token of the player making the request, must
    *        match the session token returned when the player joined the town
    *
@@ -245,7 +245,7 @@ export class TownsController extends Controller {
    * Updates the current song rating, or add a rating to an unrated song
    *
    * @param townID ID of the town in which to update the karaoke area image contents
-   * @param karaokeAreaId interactable ID of the karaoke
+   * @param songID ID of the song to update
    * @param sessionToken session token of the player making the request, must
    *        match the session token returned when the player joined the town
    *
@@ -278,7 +278,7 @@ export class TownsController extends Controller {
    * Gets the song information of a given karaoke area in a given town, based on the song id
    *
    * @param townID ID of the town in which to get the karaoke area song information
-   * @param karaokeAreaId interactable ID of the karaoke area
+   * @param songID ID of the song to retrieve
    * @param sessionToken session token of the player making the request, must
    *        match the session token returned when the player joined the town
    *
@@ -303,6 +303,40 @@ export class TownsController extends Controller {
     const success = await karaokeDao.getSongInfo(songID);
     if (!success) {
       throw new Error('Fail to get song info');
+    } else {
+      return success;
+    }
+  }
+
+  /**
+   * Gets the song information of a given karaoke area in a given town, based on the song id
+   *
+   * @param townID ID of the town in which to get the karaoke area song information
+   * @param n number of songs to retrieve
+   * @param sessionToken session token of the player making the request, must
+   *        match the session token returned when the player joined the town
+   *
+   * @throws InvalidParametersError if the session token is not valid, or if the
+   *          karaoke area specified does not exist
+   */
+  @Get('{townID}/topSongs')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async getTopSongs(
+    @Path() townID: string,
+    @Query() n: number,
+    @Header('X-Session-Token') sessionToken: string,
+  ): Promise<SongSchema[]> {
+    const curTown = this._townsStore.getTownByID(townID);
+    if (!curTown) {
+      throw new InvalidParametersError('Invalid town ID');
+    }
+    if (!curTown.getPlayerBySessionToken(sessionToken)) {
+      throw new InvalidParametersError('Invalid session ID');
+    }
+    const karaokeDao = new KaraokeDao();
+    const success = await karaokeDao.getTopSongs(n);
+    if (!success) {
+      throw new Error('Fail to get top n songs');
     } else {
       return success;
     }
