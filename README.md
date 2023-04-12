@@ -32,14 +32,27 @@ To create an account and configure your local environment:
 | `TWILIO_API_KEY_SECRET` | The secret for the API key you created.   |
 | `TWILIO_API_AUTH_TOKEN` | Visible on your twilio account dashboard. |
 
+You will also need to acess Spotify for developers dashboard:
+
+1. Go to [Spotify](https://developer.spotify.com/) and login/create your Spotify account
+2. Create an app on the dashboard and fill in the necessary information
+3. Go to your app setings to get credentials and set up a redirect URI for authorization, create a `.env` file in the `townService` directory, setting the values as follows:
+
+| Config Value     | Description                                    |
+| ---------------- | ---------------------------------------------- |
+| `CLIENT_ID`      | Visible on your Spotify account dashboard.     |
+| `CLIENT_SECRET`  | Visible on your Spotify account dashboard.     |
+| `REDIRECT_URI`   | Set this up on your Spotoify account dashboard |
+| `DB_CREDENTIALS` | Fill in your MongoDB credentials.              |
+
 ### Starting the backend
 
 Once your backend is configured, you can start it by running `npm start` in the `townService` directory (the first time you run it, you will also need to run `npm install`).
-The backend will automatically restart if you change any of the files in the `townService/src` directory.
+The backend will automatically restart if you change any of the files in the `townService/src` directory. If you are receiving an error related to the database, you will also need to run `npm install mongoose`.
 
 ### Configuring the frontend
 
-Create a `.env` file in the `frontend` directory, with the line: `REACT_APP_TOWNS_SERVICE_URL=http://localhost:8081` (if you deploy the towns service to another location, put that location here instead)
+Create a `.env` file in the `frontend` directory, with the line: `REACT_APP_TOWNS_SERVICE_URL=http://localhost:8081` (if you deploy the towns service to another location, put that location here instead) and `REACT_APP_CLIENT_ID` (fill in your client id from your Spotify account dashboard)
 
 ### Running the frontend
 

@@ -184,6 +184,7 @@
 				"additionalProperties": false
 			},
 			"SongSchema": {
+				"description": "Represents a spotify song database document.",
 				"properties": {
 					"id": {
 						"type": "string"
