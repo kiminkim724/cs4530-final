@@ -14,7 +14,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Card, Col, Container, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro';
-import SongRecommendations from './KaraokeAreaComponents/recommendations';
 
 const ALLOWED_DRIFT = 1;
 
@@ -63,9 +62,6 @@ function WebPlayback(props: {
   const [currentTrack, setTrack] = useState<Spotify.Track | undefined>();
   const [currentTime, setTime] = useState<number>(props.controller.elapsedTimeSec);
   const [currentQueue, setQueue] = useState<string[]>(props.controller.songQueue);
-  const [currentRecommendations, setRecommendations] = useState<string[]>(
-    props.controller.recommendations,
-  );
   const [deviceID, setDeviceID] = useState('');
   const [stars, setStars] = useState<0 | 1 | 2 | 3 | 4 | 5>(0);
   const [rating, setRating] = useState<number>(0.0);
@@ -178,28 +174,20 @@ function WebPlayback(props: {
     });
   }
 
-  const addSong = (id: string, type: string) => {
-    let field: string[];
-    // KIMIN CAN YOU CHECK THE MUTATION HERE
-    if (type == 'queue') {
-      field = props.controller.songQueue;
-    } else {
-      field = props.controller.recommendations;
-    }
-
-    if (id && field.find(song => song === id)) {
+  const addSong = (id: string) => {
+    if (id && props.controller.songQueue.find(song => song === id)) {
       toast({
-        title: `Song already in ${type}`,
+        title: `Song already in queue`,
         status: 'error',
       });
-      console.log(`song already in ${type}`);
+      console.log('song already in queue');
     } else {
-      console.log(`adding song to ${type}`);
+      console.log('adding song to queue');
       toast({
-        title: `Song added to ${type}`,
+        title: `Song added to queue`,
         status: 'success',
       });
-      field = field.concat(id);
+      props.controller.songQueue = props.controller.songQueue.concat(id);
       townController.emitKaraokeAreaUpdate(props.controller);
     }
   };
@@ -241,11 +229,6 @@ function WebPlayback(props: {
     }
   };
 
-  // const getTopSongs = async () => {
-  //   const songs = await townController.getKaraokeAreaTopSongs(props.controller, 5);
-  //   return songs;
-  // };
-
   const handleLike = async () => {
     if (disliked || liked) {
       return;
@@ -276,7 +259,7 @@ function WebPlayback(props: {
     }
   };
 
-  useEffect(() => {}, [currentQueue, currentRecommendations]);
+  useEffect(() => {}, [currentQueue]);
 
   useEffect(() => {
     console.log(props.controller);
@@ -300,12 +283,10 @@ function WebPlayback(props: {
     props.controller.addListener('progressChange', progressListener);
     props.controller.addListener('songChange', playSong);
     props.controller.addListener('songQueueChange', setQueue);
-    props.controller.addListener('recommendationsChange', setRecommendations);
     return () => {
       props.controller.removeListener('progressChange', progressListener);
       props.controller.removeListener('songQueueChange', setQueue);
       props.controller.removeListener('songChange', playSong);
-      props.controller.removeListener('recommendationsChange', setRecommendations);
     };
   }, [props.controller, playSong, props.player]);
 
@@ -482,13 +463,7 @@ function WebPlayback(props: {
             </Container>
             <Container>
               <SongQueue queue={currentQueue} token={props.token} />
-              {/* <SongRecommendations
-                recommendations={currentRecommendations}
-                token={props.token}
-                topSongs={getTopSongs})}
-              /> */}
             </Container>
-            <Container></Container>
           </div>
           <ModalCloseButton />
         </ModalContent>
