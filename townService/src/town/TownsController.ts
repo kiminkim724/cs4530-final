@@ -30,7 +30,7 @@ import {
   KaraokeArea,
 } from '../types/CoveyTownSocket';
 import PosterSessionAreaReal from './PosterSessionArea';
-import { isKaraokeArea, isPosterSessionArea } from '../TestUtils';
+import { isPosterSessionArea } from '../TestUtils';
 import KaraokeDao from '../daos/KaraokeDao';
 import SongSchema from '../daos/SongSchema';
 
@@ -342,30 +342,19 @@ export class TownsController extends Controller {
     }
   }
 
-  // @Get('{townID}/{karaokeSessionId}/authorize')
-  // @Response<InvalidParametersError>(400, 'Invalid values specified')
+  /**
+   * Calls Spotify Web API to request authorization, redirecting user to Spotify login page
+   *
+   * @param codeChallenge required for PKCE flow
+   * @param state provides protection against cross-site request
+   * @req request/response body
+   */
   @Get('/authorize')
   public async spotifyAuthorize(
-    // @Path() townID: string,
-    // @Path() karaokeSessionId: string,
-    // @Header('X-Session-Token') sessionToken: string,
     @Query() codeChallenge: string,
     @Query() state: string,
     @Request() req: express.Request,
   ): Promise<void> {
-    // const curTown = this._townsStore.getTownByID(townID);
-    // if (!curTown) {
-    //   throw new InvalidParametersError('Invalid town ID');
-    // }
-    // if (!curTown.getPlayerBySessionToken(sessionToken)) {
-    //   throw new InvalidParametersError('Invalid session ID');
-    // }
-
-    // const karaokeSessionArea = curTown.getInteractable(karaokeSessionId);
-    // if (!karaokeSessionArea || !isPosterSessionArea(karaokeSessionArea)) {
-    //   throw new InvalidParametersError('Invalid karaoke session ID');
-    // }
-
     const scope = 'user-read-private user-read-email streaming';
     const clientId = process.env.CLIENT_ID || null;
     const redirect = process.env.REDIRECT_URI || null;
@@ -389,29 +378,17 @@ export class TownsController extends Controller {
     }
   }
 
-  // @Get('{townID}/{karaokeSessionId}/callback')
-  // @Response<InvalidParametersError>(400, 'Invalid values specified')
+  /**
+   * Sending request to Spotify after user's account verification in exchange for an access and refresh tokens
+   *
+   * @param codeVerifier required for PKCE flow
+   * @req request/response body
+   */
   @Get('/callback')
   public async spotifyCallback(
-    // @Path() townID: string,
-    // @Path() karaokeSessionId: string,
-    // @Header('X-Session-Token') sessionToken: string,
     @Query() codeVerifier: string,
     @Request() req: express.Request,
   ): Promise<void> {
-    // const curTown = this._townsStore.getTownByID(townID);
-    // if (!curTown) {
-    //   throw new InvalidParametersError('Invalid town ID');
-    // }
-    // if (!curTown.getPlayerBySessionToken(sessionToken)) {
-    //   throw new InvalidParametersError('Invalid session ID');
-    // }
-
-    // const karaokeSessionArea = curTown.getInteractable(karaokeSessionId);
-    // if (!karaokeSessionArea || !isPosterSessionArea(karaokeSessionArea)) {
-    //   throw new InvalidParametersError('Invalid karaoke session ID');
-    // }
-
     const code = req.query.code || null;
     const clientId = process.env.CLIENT_ID || null;
     const clientSecret = process.env.CLIENT_SECRET || null;
@@ -439,7 +416,6 @@ export class TownsController extends Controller {
             },
           },
         )
-        // DO SOMETHING WITH THE RESPONSE LATER
         .then(response => {
           if (response.status === 200) {
             res.send(response.data);
@@ -453,27 +429,14 @@ export class TownsController extends Controller {
     }
   }
 
-  @Get('{townID}/{karaokeSessionId}/clientCredentials')
+  /**
+   * Calls Spotify Web API to request client credentials
+   *
+   * @req request/response body
+   */
+  @Get('{townID}/clientCredentials')
   @Response<InvalidParametersError>(400, 'Invalid values specified')
-  public async spotifyClientCredentials(
-    @Path() townID: string,
-    @Path() karaokeSessionId: string,
-    @Header('X-Session-Token') sessionToken: string,
-    @Request() req: express.Request,
-  ): Promise<void> {
-    const curTown = this._townsStore.getTownByID(townID);
-    if (!curTown) {
-      throw new InvalidParametersError('Invalid town ID');
-    }
-    if (!curTown.getPlayerBySessionToken(sessionToken)) {
-      throw new InvalidParametersError('Invalid session ID');
-    }
-
-    const karaokeSessionArea = curTown.getInteractable(karaokeSessionId);
-    if (!karaokeSessionArea || !isPosterSessionArea(karaokeSessionArea)) {
-      throw new InvalidParametersError('Invalid karaoke session ID');
-    }
-
+  public async spotifyClientCredentials(@Request() req: express.Request): Promise<void> {
     const clientId = process.env.CLIENT_ID || null;
     const clientSecret = process.env.CLIENT_SECRET || null;
     const res = (<any>req).res as express.Response;
@@ -494,7 +457,6 @@ export class TownsController extends Controller {
             },
           },
         )
-        // DO SOMETHING WITH THE RESPONSE LATER
         .then(response => {
           if (response.status === 200) {
             res.send(response.data);
