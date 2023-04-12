@@ -4,7 +4,7 @@ import { KaraokeArea } from '../generated/client';
 import TownController from './TownController';
 import KaraokeAreaController, { KaraokeAreaEvents } from './KaraokeAreaController';
 
-describe('[REE1] PosterSessionAreaController', () => {
+describe('[REE1] KaraokeSessionAreaController', () => {
   let testArea: KaraokeAreaController;
   let testAreaModel: KaraokeArea;
   const townController: MockProxy<TownController> = mock<TownController>();

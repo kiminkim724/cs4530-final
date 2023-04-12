@@ -128,7 +128,7 @@ describe('KaraokeArea', () => {
         ),
       ).toThrowError();
     });
-    it('Creates a new karaoke area using the provided boundingBox and id, with no poster (i.e. title and image undefined, no stars), and emitter', () => {
+    it('Creates a new karaoke area using the provided boundingBox and id, with no song, and emitter', () => {
       const x = 30;
       const y = 20;
       const width = 10;
