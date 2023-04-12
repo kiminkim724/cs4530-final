@@ -25,6 +25,11 @@ export default class KaraokeDao {
     }
   }
 
+  /**
+   * Adds the specified rating to the given songID in the database
+   * @param songID the song to update
+   * @param rating the rating to add to
+   */
   public async addRatingToSong(songID: string, rating: 1 | 2 | 3 | 4 | 5) {
     const data = await this._songModel.findOne({ id: songID });
     if (!data) {
@@ -40,6 +45,11 @@ export default class KaraokeDao {
     }
   }
 
+  /**
+   * Creates a blank song with 0s for all data
+   * @param songID id of song
+   * @returns the new song
+   */
   private _freshSong(songID: string): SongSchema {
     return {
       id: songID,
@@ -57,6 +67,11 @@ export default class KaraokeDao {
     };
   }
 
+  /**
+   * Retrieves and sums the ratings for a song in the database
+   * @param songID the id of the song
+   * @returns the sum of the song's ratings
+   */
   private async _getRatings(songID: number): Promise<number> {
     const data = await this._songModel.findOne({ id: songID });
     let result = 0;
@@ -68,6 +83,11 @@ export default class KaraokeDao {
     return result;
   }
 
+  /**
+   * Gets a list of top rated songs from the database
+   * @param n the number of songs to get
+   * @returns the list of songs
+   */
   public async getTopSongs(n: number): Promise<SongSchema[]> {
     const songs = await this._songModel.find();
     const ratings = await Promise.all(songs.map(song => this._getRatings(song.id)));
@@ -77,6 +97,11 @@ export default class KaraokeDao {
     return songsByRating.slice(0, n);
   }
 
+  /**
+   * Adds a specified reaction to the specified song in the database, adding 1 to the existing number
+   * @param songID the song to react to
+   * @param reaction the reaction
+   */
   public async addReactionToSong(songID: string, reaction: 'likes' | 'dislikes') {
     const data = await this._songModel.findOne({ id: songID });
     if (!data) {
