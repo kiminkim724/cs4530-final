@@ -52,7 +52,7 @@ The backend will automatically restart if you change any of the files in the `to
 
 ### Configuring the frontend
 
-Create a `.env` file in the `frontend` directory, with the line: `REACT_APP_TOWNS_SERVICE_URL=http://localhost:8081` (if you deploy the towns service to another location, put that location here instead) and `REACT_APP_CLIENT_ID` (fill in your client id from your Spotify account dashboard)
+Create a `.env` file in the `frontend` directory, with the line: `REACT_APP_TOWNS_SERVICE_URL=http://localhost:8081` (if you deploy the towns service to another location, put that location here instead) and `REACT_APP_CLIENT_ID` (fill in your client id from your Spotify account dashboard) and add the line `REACT_APP_REDIRECT_URI='http://localhost:3000'` (if you deploy the frontend to another location, put that location here instead).
 
 ### Running the frontend
 
