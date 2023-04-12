@@ -17,7 +17,6 @@ describe('KaraokeArea', () => {
   const currentSong = 'Test Song';
   const title = 'Test Song Title';
   const songQueue = ['Test Song 2'];
-  const recommendations = ['Test Song 3'];
 
   beforeEach(() => {
     mockClear(townEmitter);
@@ -71,7 +70,6 @@ describe('KaraokeArea', () => {
         currentSong: undefined,
         title: undefined,
         songQueue: [],
-        recommendations: [],
       });
       expect(testArea.title).toBeUndefined();
       expect(testArea.isSongPlaying).toEqual(false);
@@ -98,7 +96,6 @@ describe('KaraokeArea', () => {
       currentSong,
       title,
       songQueue,
-      recommendations,
     });
   });
   test('updateModel sets isPlaying, elapsed time/progress, current song, title, and songQueue', () => {
@@ -108,7 +105,6 @@ describe('KaraokeArea', () => {
     const newCurrentSong = 'New Current Song';
     const newTitle = 'New Test Song Title';
     const newSongQueue = ['New Song 2', 'New Song 3'];
-    const newRecommendations = ['Recommendation Song 1'];
     testArea.updateModel({
       id: newId,
       isSongPlaying: newIsPlaying,
