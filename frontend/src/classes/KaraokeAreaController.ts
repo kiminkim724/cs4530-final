@@ -38,13 +38,6 @@ export type KaraokeAreaEvents = {
    * to indicate the new list of songs in the queue.
    */
   songQueueChange: (songQueue: string[]) => void;
-
-  /**
-   * A recommendationsChange event indicates that the list of recommendations for this karaoke area has changed.
-   * Listeners are passed the new queue, which is either an empty array or a new array of strings
-   * to indicate the new list of songs in the queue.
-   */
-  recommendationsChange: (recommendations: string[]) => void;
 };
 
 /**
@@ -179,25 +172,6 @@ export default class KaraokeAreaController extends (EventEmitter as new () => Ty
   }
 
   /**
-   * The current recommendations, a list of strings of the song's Spotify URI
-   */
-  public get recommendations() {
-    return this._model.recommendations;
-  }
-
-  /**
-   * The current recommendations, a list of strings of the song's Spotify URI,
-   *
-   * Changing this value will emit a recommendationsChange event
-   */
-  public set recommendations(queue: string[]) {
-    if (this._model.recommendations != queue) {
-      this._model.recommendations = queue;
-      this.emit('recommendationsChange', queue);
-    }
-  }
-
-  /**
    * @returns KaraokeAreaModel that represents the current state of this KaraokeAreaController
    */
   public KaraokeAreaModel(): KaraokeAreaModel {
@@ -216,7 +190,6 @@ export default class KaraokeAreaController extends (EventEmitter as new () => Ty
     this.elapsedTimeSec = updatedModel.elapsedTimeSec;
     this.currentSong = updatedModel.currentSong;
     this.songQueue = updatedModel.songQueue;
-    this.recommendations = updatedModel.recommendations;
   }
 }
 /**

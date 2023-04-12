@@ -29,7 +29,6 @@ describe('KaraokeArea', () => {
         currentSong,
         title,
         songQueue,
-        recommendations,
       },
       testAreaBox,
       townEmitter,
@@ -54,7 +53,6 @@ describe('KaraokeArea', () => {
         currentSong,
         title,
         songQueue,
-        recommendations,
       });
     });
     it("Clears the player's interactableID and emits an update for their location", () => {
@@ -78,7 +76,6 @@ describe('KaraokeArea', () => {
       expect(testArea.title).toBeUndefined();
       expect(testArea.isSongPlaying).toEqual(false);
       expect(testArea.songQueue).toEqual([]);
-      expect(testArea.recommendations).toEqual([]);
     });
   });
   describe('add', () => {
@@ -119,14 +116,12 @@ describe('KaraokeArea', () => {
       currentSong: newCurrentSong,
       title: newTitle,
       songQueue: newSongQueue,
-      recommendations: newRecommendations,
     });
     expect(testArea.id).toBe(id);
     expect(testArea.title).toBe(newTitle);
     expect(testArea.isSongPlaying).toBe(newIsPlaying);
     expect(testArea.elapsedTimeSec).toBe(newElapsedTimeSec);
     expect(testArea.songQueue).toBe(newSongQueue);
-    expect(testArea.recommendations).toBe(newRecommendations);
   });
   describe('fromMapObject', () => {
     it('Throws an error if the width or height are missing', () => {
@@ -151,7 +146,6 @@ describe('KaraokeArea', () => {
       expect(val.id).toEqual(name);
       expect(val.title).toBeUndefined();
       expect(val.songQueue).toEqual([]);
-      expect(val.recommendations).toEqual([]);
       expect(val.isSongPlaying).toEqual(false);
       expect(val.elapsedTimeSec).toEqual(0);
       expect(val.occupantsByID).toEqual([]);
