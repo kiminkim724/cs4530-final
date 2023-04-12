@@ -15,6 +15,8 @@ export default class KaraokeArea extends InteractableArea {
 
   private _songQueue: string[];
 
+  private _recommendations: string[];
+
   private _isSongPlaying: boolean;
 
   private _elapsedTimeSec: number;
@@ -29,6 +31,10 @@ export default class KaraokeArea extends InteractableArea {
 
   public get songQueue() {
     return this._songQueue;
+  }
+
+  public get recommendations() {
+    return this._recommendations;
   }
 
   public get elapsedTimeSec() {
@@ -54,6 +60,7 @@ export default class KaraokeArea extends InteractableArea {
       currentSong,
       title,
       songQueue,
+      recommendations,
     }: KaraokeAreaModel,
     coordinates: BoundingBox,
     townEmitter: TownEmitter,
@@ -62,6 +69,7 @@ export default class KaraokeArea extends InteractableArea {
     this._currentSong = currentSong;
     this._title = title;
     this._songQueue = songQueue;
+    this._recommendations = recommendations;
     this._elapsedTimeSec = progress;
     this._isSongPlaying = isPlaying;
   }
@@ -82,6 +90,7 @@ export default class KaraokeArea extends InteractableArea {
       this._currentSong = undefined;
       this._title = undefined;
       this._songQueue = [];
+      this._recommendations = [];
       this._emitAreaChanged();
     }
   }
@@ -97,10 +106,12 @@ export default class KaraokeArea extends InteractableArea {
     currentSong,
     title,
     songQueue,
+    recommendations,
   }: KaraokeAreaModel) {
     this._currentSong = currentSong;
     this._title = title;
     this._songQueue = songQueue;
+    this._recommendations = recommendations;
     this._isSongPlaying = isPlaying;
     this._elapsedTimeSec = progress;
   }
@@ -117,6 +128,7 @@ export default class KaraokeArea extends InteractableArea {
       currentSong: this._currentSong,
       title: this._title,
       songQueue: this._songQueue,
+      recommendations: this._recommendations,
     };
   }
 
@@ -133,7 +145,7 @@ export default class KaraokeArea extends InteractableArea {
     }
     const rect: BoundingBox = { x: mapObject.x, y: mapObject.y, width, height };
     return new KaraokeArea(
-      { isSongPlaying: false, id: name, elapsedTimeSec: 0, songQueue: [] },
+      { isSongPlaying: false, id: name, elapsedTimeSec: 0, songQueue: [], recommendations: [] },
       rect,
       townEmitter,
     );
