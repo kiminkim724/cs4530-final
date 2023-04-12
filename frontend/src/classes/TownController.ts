@@ -820,6 +820,19 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   }
 
   /**
+   *  Gets the top n songs from the database
+   * @param karaokeArea the poster session area controller
+   * @param n the number of songs to retrieve
+   * @returns a promise wrapping the information about the list of top songs
+   */
+  public async getKaraokeAreaTopSongs(
+    karaokeArea: KaraokeAreaController,
+    n: number,
+  ): Promise<SongSchema[]> {
+    return this._townsService.getTopSongs(this.townID, n, this.sessionToken);
+  }
+
+  /**
    * Determine which players are "nearby" -- that they should be included in our video call
    */
   public nearbyPlayers(): PlayerController[] {
